@@ -38,3 +38,28 @@ The solrHttpClient will return all data as string as it revcived it.
 No helper exists yet to transform it to you own data struct.
 in futuer it will be a helper with that maybe the client will accpect you model and transform it to a object
 
+##example to use it 
+using Solr;
+using Solr.SolrConfig;
+
+function myconnection() {
+  Solr.SolrConfig.Config cfg = new Solr.SolrConfig.Config cfg();
+  cfg.solrCore = new Solr.SolrConfig.CoreConfig[1];
+  cfg.solrCore[0].coreName = "my core / collection / share name";
+  cfg.solrServerUrl = "http://localhost:8983";
+  cfg.solrUserName = "http basic authorizing name";
+  cfg.solrPassword = "http basic authorizing password clear text";
+  cfg.solrUseBaiscAuth = true;
+  
+  SolrHTTPClient solr = SolrHTTPClient(cfg);
+  
+  string docs = solr.Select(0,"q=*%3A*",null);
+ }
+as you can see you must self encode the parms correct solr does not under stand + as space (%20) the parm need be encode correct
+to encode the q=*:* cars" correct you need use str = "q="+Uri.EscapeDataString("*:* cars"); now you got corret url encoding 
+
+ 
+   
+  
+  
+}
