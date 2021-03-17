@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Solr.SolrHelpers {
+namespace SolrHTTP {
 
     public class solrBuildHttpParms {
 

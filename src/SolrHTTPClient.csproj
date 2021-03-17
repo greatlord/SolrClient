@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <Authors>Magnus Olsen</Authors>
+    <Version>1.0.0</Version>
+    <PackageTags>Solr http/https client library</PackageTags>
+    <Description>
+      This library is a solr client over http/https protocol. it support http login, solr select/update and sql interface.
+      see github for more info.
+    </Description>
+    <Copyright>Magnus Olsen (magnus@greatlord.com) 2020 - 2021 </Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/greatlord/SolrClient</RepositoryUrl>
+    <RespositoryType>git</RespositoryType>
+    <PackageProjectUrl>https://github.com/greatlord/SolrClient</PackageProjectUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="LICENSE" Pack="true" PackagePath=""/>
+  </ItemGroup>
+
+</Project>

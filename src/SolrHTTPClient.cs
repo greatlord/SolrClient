@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text;
-using Solr.SolrConfig;
-using Solr.SolrHelpers;
 
 
-namespace Solr
+
+namespace SolrHTTP
 {
 
     public class SolrHTTPClient
     {
      
         private readonly HttpClient client = new HttpClient();
+        public HttpResponseMessage status = new HttpResponseMessage();
         private Random rnd = new Random();
 
         public int commitWithin = 1000;
@@ -130,13 +130,14 @@ namespace Solr
             if (string.IsNullOrEmpty(strQuery) ) {
                 strQuery = "?" + strQuery;
             }
-
+            
             return await doPost(coreIndexId, "sql", strQuery, strSqlQuery, true);
 
         }
 
         private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData, bool doUrlEncodeData ) {
                         
+            string url;
             StringContent data;
 
             if ( Cfg.solrCore.Length == 0) {
@@ -146,7 +147,9 @@ namespace Solr
             if ( string.IsNullOrEmpty( Cfg.solrCore[coreIndexId].coreName ) || string.IsNullOrWhiteSpace( Cfg.solrCore[coreIndexId].coreName ) ) {
                 return null;
             }
-
+            if (strData == null) {
+                strData = " ";
+            }
             data = null;
             if (!string.IsNullOrEmpty(strData)) {
 
@@ -156,10 +159,18 @@ namespace Solr
 
                 data = new StringContent(strData, Encoding.UTF8, "application/json");
             }
+            url =  Cfg.solrServerUrl + "/solr/" + Cfg.solrCore[coreIndexId].coreName + "/"+cmd+strQuery;
 
-            var result = await client.PostAsync( Cfg.solrCore[coreIndexId].coreName + "/"+cmd+strQuery,data); 
-            return await result.Content.ReadAsStringAsync();
+            var result = await client.PostAsync( url,data); 
+
+            var context = await result.Content.ReadAsStringAsync();
+            
+            status  = result;
+                        
+            return context;
         }
+
+        
 
         private string getBase64BasicAuthUserAndPassword ( string Username, string Password ) {
     

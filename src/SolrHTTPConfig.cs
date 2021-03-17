@@ -1,7 +1,7 @@
 
 using System;
 
-namespace Solr.SolrConfig
+namespace SolrHTTP
 {
     public class Config {
         
