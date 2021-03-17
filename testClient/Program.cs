@@ -16,6 +16,13 @@ namespace testClient
             }
             Console.WriteLine("done: TestSolrConntecions");
             
+            Console.WriteLine("start: TestSolrGetDocs");
+            if (!testSolr.TestSolrGetDocs()) {
+                Console.WriteLine("TestSolrGetDocs: fail");
+            }
+            Console.WriteLine("done: TestSolrGetDocs");
+
+            
         }
     }
 }
