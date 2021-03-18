@@ -20,6 +20,8 @@ namespace SolrHTTP
 
         private Config Cfg;
 
+        private string solrServerUrlApi { get; set;}
+
         public SolrHTTPClient( Config cfg ) {
 
             if (cfg.solrServerUrl.Substring(cfg.solrServerUrl.Length - 5, 5)== "solr/") {
@@ -30,6 +32,7 @@ namespace SolrHTTP
                 cfg.solrServerUrl = cfg.solrServerUrl.Substring(0,cfg.solrServerUrl.Length - 1);
             }
             cfg.solrServerUrl = cfg.solrServerUrl + "/solr/";
+            solrServerUrlApi = cfg.solrServerUrl + "/api/";
 
             client.BaseAddress = new Uri( cfg.solrServerUrl );
 
@@ -76,6 +79,16 @@ namespace SolrHTTP
 
         }
 
+        public string Api(int coreIndexId, string type, string cmd, string data ) {
+
+            var solrApi= this.asyncApi(coreIndexId, type, cmd, data );
+
+            solrApi.Wait();
+
+            return solrApi.Result; 
+
+        }
+
 
         private async Task <string> asyncUpdate(  int coreIndexId, string strData,bool overWrite) {
 
@@ -103,6 +116,24 @@ namespace SolrHTTP
         }
 
          
+        private async Task <string> asyncApi( int coreIndexId, string type, string cmd, string strData) {                
+
+            string url;
+            
+            if ( Cfg.solrCore.Length == 0) {
+                return null;
+            }
+
+            if ( string.IsNullOrEmpty( Cfg.solrCore[coreIndexId].coreName ) || string.IsNullOrWhiteSpace( Cfg.solrCore[coreIndexId].coreName ) ) {
+                return null;
+            }
+
+            url =  this.solrServerUrlApi + type + "/" + Cfg.solrCore[coreIndexId].coreName + "/" + cmd ;
+
+            return await doPostApi(url, strData);
+
+        }
+
         private async Task <string> asyncSelect( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
 
             string strQuery;
@@ -171,6 +202,28 @@ namespace SolrHTTP
 
             
             url =  Cfg.solrServerUrl + Cfg.solrCore[coreIndexId].coreName + "/"+cmd+strQuery;
+
+            var result = await client.PostAsync( url,data); 
+
+            var context = await result.Content.ReadAsStringAsync();
+            
+            status  = result;
+                        
+            return context;
+        }
+
+        private async Task <string> doPostApi(  string url, string strData ) {
+                        
+            
+            StringContent data;
+
+            if (strData == null) {
+                strData = " ";
+            }
+            data = null;
+            if (!string.IsNullOrEmpty(strData)) {
+                data = new StringContent(strData, Encoding.UTF8, "application/json");
+            }
 
             var result = await client.PostAsync( url,data); 
 

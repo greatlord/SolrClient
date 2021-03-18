@@ -67,6 +67,7 @@ namespace solrClientTest {
             Console.WriteLine("done: state");
 
             
+            
             return retValue;
         }
         public void HandleSqlConnectionDrop(object connection, StateChangeEventArgs args) {

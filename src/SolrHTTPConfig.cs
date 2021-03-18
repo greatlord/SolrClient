@@ -5,7 +5,7 @@ namespace SolrHTTP
 {
     public class Config {
         
-        public  string solrServerUrl { get; set;}
+        public  string solrServerUrl { get; set;}        
         public  string solrUserName { get; set;}
         public  string solrPassword { get; set;}
         public  bool solrUseBaiscAuth { get; set;}        
