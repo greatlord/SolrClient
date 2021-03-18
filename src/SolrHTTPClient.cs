@@ -86,8 +86,71 @@ namespace SolrHTTP
         public async Task <string> SelectAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
             return await this._asyncSelect( coreIndexId, httpQuery, strData);
-                    
+
         }
+
+        private async Task <string> _asyncSelect( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
+
+            string strQuery;
+
+            strQuery = null;
+            if ( httpQuery != null ) {
+                
+                strQuery = httpQuery.GetUrlQuary();
+                if (string.IsNullOrEmpty(strQuery)) {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json";
+                } else {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json&" + strQuery;
+                }
+
+            }
+            
+            return await doPost(coreIndexId, "select", strQuery, strData, false);
+
+        }
+
+        public string Schema( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        
+            var solrSchema = this._asyncSchema( coreIndexId, httpQuery, strData);
+
+            solrSchema.Wait();
+
+            return solrSchema.Result; 
+        }
+
+        public async Task <string> SchemaAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        
+            return await this._asyncSchema( coreIndexId, httpQuery, strData);
+
+        }
+
+        private async Task <string> _asyncSchema( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
+
+            string strQuery;
+
+            strQuery = null;
+            if ( httpQuery != null ) {
+                
+                strQuery = httpQuery.GetUrlQuary();
+                if (string.IsNullOrEmpty(strQuery)) {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json";
+                } else {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json&" + strQuery;
+                }
+
+            }
+            
+            return await doPost(coreIndexId, "schema", strQuery, strData, false);
+
+        }
+
+
+
+
+
+
+
+
 
 
         public string Sql(int coreIndexId, solrBuildHttpParms httpQuery, string strSqlQuery) {
@@ -155,25 +218,7 @@ namespace SolrHTTP
 
         }
 
-        private async Task <string> _asyncSelect( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
-
-            string strQuery;
-
-            strQuery = null;
-            if ( httpQuery != null ) {
-                
-                strQuery = httpQuery.GetUrlQuary();
-                if (string.IsNullOrEmpty(strQuery)) {
-                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json";
-                } else {
-                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json&" + strQuery;
-                }
-
-            }
-            
-            return await doPost(coreIndexId, "select", strQuery, strData, false);
-
-        }
+       
 
         private async Task <string> asyncSQL( int coreIndexId, string strQuery, string strSqlQuery) {    
        

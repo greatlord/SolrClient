@@ -29,6 +29,20 @@ Licen is LGPL 2.1
 ## If I want use it in close source or somthing that lgpl does not allown me todo ?
 Contact me so we can agreed on the licen fee and terms for it.
 
+## SolrHTTPClient
+### method
+* Select() 
+  - calling on solr url http://localhost:8393/solr/corename/select
+
+* SelectAsync()
+  - calling on solr url http://localhost:8393/solr/corename/select
+
+* Schema()
+ - calling on solr url http://localhost:8393/solr/corename/schema
+
+* SchemaAsync()
+ - calling on solr url http://localhost:8393/solr/corename/schema
+ 
 ## Ado.net support ?
 Some basic support exists for zookeeper with solr.
 Solr SQL interface are only activated if you got zookeeper setup
@@ -73,6 +87,7 @@ if zkConnected == false it false it will throw NotSuppreted
 * GetType          
 * ServerVersion
 * Site
+
 
 
 ## Transform data from solr to object 
