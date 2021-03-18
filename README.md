@@ -30,23 +30,50 @@ Licen is LGPL 2.1
 Contact me so we can agreed on the licen fee and terms for it.
 
 ## Ado.net support ?
-Some basic support exists 
+Some basic support exists for zookeeper with solr.
+Solr SQL interface are only activated if you got zookeeper setup
+ado.net for solr http/https sql interface will check with normal post
+if zkConnected == false it false it will throw NotSuppreted 
+
 ### SolrHTTPConnection
+#### string and vars
+* Database (done)
+* DataSource (done)
+* ConnectionString (done)
+* State (done)
+
+#### method
 * SolrHTTPConnection constructor (done)
-* Database get string (done)
-* DataSource get string (done)
-* ConnectionString get string (done)
 * State get ConnectionState (done)
 * Open() method (done)
 * Close() method (done)
-* CreateCommand (done)
-* ServerVersion (todo)
-* GetSchema() (todo)
-* OpenAsync() (todo)
-* CloseAsync() (todo)
-* ChangeDatabase() (todo)
-* Dispose() (todo)
+* CreateCommand() (done)
+
+#### events
+* StateChange (done)
+
+#### Will not be supported
 * BeginDbTransaction (Not supported by solr)
+* BeginTransactionAsync (Not supported by solr)
+* EnlistTransaction (Not supported by solr)
+
+#### ToDo
+* ChangeDatabase
+* ChangeDatabaseAsync
+* Clone          
+* CloseAsync
+* ConnectionTimeout
+* Container
+* CreateCommand
+* Dispose
+* DisposeAsync
+* Disposed
+* GetSchema
+* GetSchemaAsync
+* GetType          
+* OpenAsync
+* ServerVersion
+* Site
 
 
 ## Transform data from solr to object 
