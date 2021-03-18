@@ -19,6 +19,19 @@ namespace SolrHTTP
         public bool indent {get;set;} = false;
         public bool DebugQuery {get;set;} = false;
         public bool DebugExplainStructured {get;set;} = false;
+
+        public bool dismax {get;set;} = false;
+        public bool edismax {get;set;} = false;
+
+        public bool stopwords {get;set;} = false;
+        public bool lowercaseOperators {get;set;} = false;
+        public  bool hl {get;set;} = false;
+        public  bool facet {get;set;} = false;         
+        public  bool spatial {get;set;} = false;
+
+        public  bool spellcheck {get;set;} = false;    
     }
+
+    
 
 }
