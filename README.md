@@ -30,8 +30,24 @@ Licen is LGPL 2.1
 Contact me so we can agreed on the licen fee and terms for it.
 
 ## Ado.net support ?
-I maybe will add ado support for sql support.
-if some are willing help me write it so it is okay todo so
+Some basic support exists 
+### SolrHTTPConnection
+* SolrHTTPConnection constructor (done)
+* Database get string (done)
+* DataSource get string (done)
+* ConnectionString get string (done)
+* State get ConnectionState (done)
+* Open() method (done)
+* Close() method (done)
+* CreateCommand (done)
+* ServerVersion (todo)
+* GetSchema() (todo)
+* OpenAsync() (todo)
+* CloseAsync() (todo)
+* ChangeDatabase() (todo)
+* Dispose() (todo)
+* BeginDbTransaction (Not supported by solr)
+
 
 ## Transform data from solr to object 
 The solrHttpClient will return all data as string as it revcived it.
@@ -63,3 +79,5 @@ to encode the q=*:* cars" correct you need use str = "q="+Uri.EscapeDataString("
   
   
 }
+
+

@@ -22,6 +22,10 @@ namespace testClient
             }
             Console.WriteLine("done: TestSolrGetDocs");
 
+            TestSolrADOConn testAdo = new TestSolrADOConn();
+
+            testAdo.TestDbConnection();
+
             
         }
     }

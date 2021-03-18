@@ -22,6 +22,15 @@ namespace SolrHTTP
 
         public SolrHTTPClient( Config cfg ) {
 
+            if (cfg.solrServerUrl.Substring(cfg.solrServerUrl.Length - 5, 5)== "solr/") {
+                cfg.solrServerUrl = cfg.solrServerUrl.Substring(0,cfg.solrServerUrl.Length - 5);
+            }
+
+            if (cfg.solrServerUrl.Substring(cfg.solrServerUrl.Length - 1, 1) == "/") {
+                cfg.solrServerUrl = cfg.solrServerUrl.Substring(0,cfg.solrServerUrl.Length - 1);
+            }
+            cfg.solrServerUrl = cfg.solrServerUrl + "/solr/";
+
             client.BaseAddress = new Uri( cfg.solrServerUrl );
 
             Cfg = cfg;
@@ -159,7 +168,9 @@ namespace SolrHTTP
 
                 data = new StringContent(strData, Encoding.UTF8, "application/json");
             }
-            url =  Cfg.solrServerUrl + "/solr/" + Cfg.solrCore[coreIndexId].coreName + "/"+cmd+strQuery;
+
+            
+            url =  Cfg.solrServerUrl + Cfg.solrCore[coreIndexId].coreName + "/"+cmd+strQuery;
 
             var result = await client.PostAsync( url,data); 
 

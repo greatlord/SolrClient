@@ -9,6 +9,22 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Text.Json;
 
+
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Security;
+using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.ExceptionServices;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+
+
+using System.Threading.Channels;
+
+
 namespace SolrHTTP.NET.Data
 {
     public class SolrHTTPConnection : DbConnection, ICloneable
@@ -32,7 +48,7 @@ namespace SolrHTTP.NET.Data
 
         public SolrHTTPConnection (string conn) {    
             ConnectionString = conn;
-            this.SetSolrConfig(conn);
+            this._SetSolrConfig(conn);
         }
 
         public override string Database
@@ -48,11 +64,91 @@ namespace SolrHTTP.NET.Data
 
         public override string ConnectionString { 
             get { return _connectionsString; }
-            set { this.SetSolrConfig(value); }
+            set {                 
+                this._SetStateChange(ConnectionState.Closed);
+                this._SetSolrConfig(value); 
+            }
         }
-        
+                
+        public override ConnectionState State {
+            get { return _state; }             
+        }
 
-        private void SetSolrConfig(string conn ) {
+        public override void Open()
+        {     
+            
+            if ( this._state == ConnectionState.Open ) {
+                // if it already open do not test same connections again
+                return;  
+            }
+
+            this._SetStateChange( ConnectionState.Connecting);
+
+            if ( this._solrConfig == null ) {
+                this._SetStateChange( ConnectionState.Closed);
+                throw new NotSupportedException();
+            }
+
+            this._solrClient = new SolrHTTPClient( this._solrConfig );
+            SolrJsonDocument SolrDocument = new SolrJsonDocument();
+            solrBuildHttpParms parms = new solrBuildHttpParms();
+            parms.Add("q","*:*");
+            parms.Add("start","0");
+            parms.Add("rows","1");                    
+
+            var result = this._solrClient.Select(0,parms,null);
+
+            if ( this._solrClient.status.StatusCode != HttpStatusCode.OK ) {                
+                this._SetStateChange( ConnectionState.Closed);
+                throw new NotSupportedException();                
+            }            
+
+            SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result);            
+            if (!SolrDocument.responseHeader.zkConnected) {
+                // Solr are not in cloud mode
+                // the sql interface are not vaild then
+                this._SetStateChange( ConnectionState.Closed);
+                throw new NotSupportedException();  
+            }
+            this._SetStateChange( ConnectionState.Open);
+               
+        }
+
+        public override void Close()
+        {
+            this._solrClient = null;
+            this._SetStateChange( ConnectionState.Closed );            
+        }
+
+        public new SolrHTTPCommand CreateCommand()
+        {
+            return (SolrHTTPCommand)base.CreateCommand();
+        }
+
+        public SolrHTTPCommand CreateCommand(string commandText)
+        {
+            var command = CreateCommand();
+            command.CommandText = commandText;
+
+            return command;
+        }
+
+        protected override DbCommand CreateDbCommand()
+        {
+            
+            return new SolrHTTPCommand(this);
+        }
+
+        private void _SetStateChange( ConnectionState newState ) {
+            
+            StateChangeEventArgs changeParms;
+            changeParms = new StateChangeEventArgs(this._state, newState );
+            this._state = newState;
+                    
+            this.OnStateChange(changeParms);
+        }
+
+        private void _SetSolrConfig(string conn ) {
             string[] split;
 
             if ( string.IsNullOrEmpty(conn) ) {
@@ -91,17 +187,21 @@ namespace SolrHTTP.NET.Data
 
                     default:
                         throw new NotSupportedException();                        
-                }
-
-                if ( string.IsNullOrEmpty( this._solrConfig.solrServerUrl ) ) {
-                    throw new NotSupportedException();
-                }
-
-                if ( string.IsNullOrEmpty( this._solrConfig.solrCore[0].coreName ) ) {
-                    throw new NotSupportedException();
-                }
+                }   
             }
+
+            if ( string.IsNullOrEmpty( this._solrConfig.solrServerUrl ) ) {
+                throw new NotSupportedException();
+            }
+
+            if ( string.IsNullOrEmpty( this._solrConfig.solrCore[0].coreName ) ) {
+                throw new NotSupportedException();
+            }
+
         }
+
+        
+        // Not suppred at all
 
         public override string ServerVersion
         {
@@ -110,7 +210,7 @@ namespace SolrHTTP.NET.Data
                 throw new NotSupportedException();
             }
         }  
-        public override ConnectionState State => _state;
+       
         
         public override DataTable GetSchema()
         {
@@ -127,73 +227,14 @@ namespace SolrHTTP.NET.Data
             throw new NotSupportedException();
         }
 
-        public override void Open()
-        {     
-            this._state = ConnectionState.Connecting;
-
-            if ( this._solrConfig == null ) {
-                this._state = ConnectionState.Closed;
-                throw new NotSupportedException();
-            }
-
-            this._solrClient = new SolrHTTPClient( this._solrConfig );
-            SolrJsonDocument SolrDocument = new SolrJsonDocument();
-            solrBuildHttpParms parms = new solrBuildHttpParms();
-            parms.Add("q","*:*");
-            parms.Add("start","0");
-            parms.Add("rows","1");                    
-
-            var result = this._solrClient.Select(0,parms,null);
-
-            if ( this._solrClient.status.StatusCode != HttpStatusCode.OK ) {                
-                this._state = ConnectionState.Closed;
-                throw new NotSupportedException();                
-            }            
-
-            SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result);            
-            if (!SolrDocument.responseHeader.zkConnected) {
-                // Solr are not in cloud mode
-                // the sql interface are not vaild then
-                this._state = ConnectionState.Closed;
-                throw new NotSupportedException();  
-            }
-
-            this._state = ConnectionState.Open;
-        }
-
         public override async Task OpenAsync(CancellationToken cancellationToken)
         {
            throw new NotSupportedException();
         }
 
-        public override void Close()
-        {
-            this._solrClient = null;
-            this._state = ConnectionState.Closed;
-        }
-
         public override async Task CloseAsync()
         {
             throw new NotSupportedException();
-        }
-
-        public new SolrHTTPCommand CreateCommand()
-        {
-            return (SolrHTTPCommand)base.CreateCommand();
-        }
-
-        public SolrHTTPCommand CreateCommand(string commandText)
-        {
-            var command = CreateCommand();
-            command.CommandText = commandText;
-
-            return command;
-        }
-
-        protected override DbCommand CreateDbCommand()
-        {
-            
-            return new SolrHTTPCommand(this);
         }
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
@@ -202,17 +243,15 @@ namespace SolrHTTP.NET.Data
         }
 
         public override void ChangeDatabase(string databaseName)
-        {
+        {            
            throw new NotSupportedException();
         }
        
        
         protected override void Dispose(bool disposing)
         {
-       
+            
         }
-       
-
        
         public object Clone()
         {
