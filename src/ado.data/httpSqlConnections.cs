@@ -3,17 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
+using System.Text.Json;
 
 namespace SolrHTTP.NET.Data
 {
     public class SolrHTTPConnection : DbConnection, ICloneable
     {
-        
+        private SolrHTTPClient _solrClient;
+        private SolrHTTP.Config _solrConfig = null;
         private string _connectionsString;
-        private SolrHTTP.Config Cfg;
+
+
+        
         
         private string _serverVersion;
         private ConnectionState _state = ConnectionState.Closed;
@@ -33,11 +38,11 @@ namespace SolrHTTP.NET.Data
         public override string Database
         {
             get
-            { return this.Cfg.solrCore[0].coreName; }
+            { return this._solrConfig.solrCore[0].coreName; }
         }
 
         public override string DataSource {           
-            get { return this.Cfg.solrServerUrl; }                 
+            get { return this._solrConfig.solrServerUrl; }                 
         }
 
 
@@ -59,40 +64,40 @@ namespace SolrHTTP.NET.Data
                 throw new NotSupportedException();
             }
 
-            this.Cfg = new Config();
-            this.Cfg.solrCore = new CoreConfig[1];
-            this.Cfg.solrCore[0] = new CoreConfig();
+            this._solrConfig = new Config();
+            this._solrConfig.solrCore = new CoreConfig[1];
+            this._solrConfig.solrCore[0] = new CoreConfig();
 
             foreach(string prop in split) {
                 string[] keyValue = prop.Split("=");
                 switch( keyValue[0].ToLower() ) {
                     case "host":
-                        this.Cfg.solrServerUrl = keyValue[1];                        
+                        this._solrConfig.solrServerUrl = keyValue[1];                        
                         break;
 
                     case "user":
-                        this.Cfg.solrUserName = keyValue[1];
-                        this.Cfg.solrUseBaiscAuth = true;
+                        this._solrConfig.solrUserName = keyValue[1];
+                        this._solrConfig.solrUseBaiscAuth = true;
                         break;
 
                     case "password":
-                        this.Cfg.solrPassword = keyValue[1];
-                        this.Cfg.solrUseBaiscAuth = true;
+                        this._solrConfig.solrPassword = keyValue[1];
+                        this._solrConfig.solrUseBaiscAuth = true;
                         break;
 
                     case "database":                        
-                        this.Cfg.solrCore[0].coreName = keyValue[1];
+                        this._solrConfig.solrCore[0].coreName = keyValue[1];
                         break;
 
                     default:
                         throw new NotSupportedException();                        
                 }
 
-                if ( string.IsNullOrEmpty( this.Cfg.solrServerUrl ) ) {
+                if ( string.IsNullOrEmpty( this._solrConfig.solrServerUrl ) ) {
                     throw new NotSupportedException();
                 }
 
-                if ( string.IsNullOrEmpty( this.Cfg.solrCore[0].coreName ) ) {
+                if ( string.IsNullOrEmpty( this._solrConfig.solrCore[0].coreName ) ) {
                     throw new NotSupportedException();
                 }
             }
@@ -123,8 +128,37 @@ namespace SolrHTTP.NET.Data
         }
 
         public override void Open()
-        {
-            throw new NotSupportedException();
+        {     
+            this._state = ConnectionState.Connecting;
+
+            if ( this._solrConfig == null ) {
+                this._state = ConnectionState.Closed;
+                throw new NotSupportedException();
+            }
+
+            this._solrClient = new SolrHTTPClient( this._solrConfig );
+            SolrJsonDocument SolrDocument = new SolrJsonDocument();
+            solrBuildHttpParms parms = new solrBuildHttpParms();
+            parms.Add("q","*:*");
+            parms.Add("start","0");
+            parms.Add("rows","1");                    
+
+            var result = this._solrClient.Select(0,parms,null);
+
+            if ( this._solrClient.status.StatusCode != HttpStatusCode.OK ) {                
+                this._state = ConnectionState.Closed;
+                throw new NotSupportedException();                
+            }            
+
+            SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result);            
+            if (!SolrDocument.responseHeader.zkConnected) {
+                // Solr are not in cloud mode
+                // the sql interface are not vaild then
+                this._state = ConnectionState.Closed;
+                throw new NotSupportedException();  
+            }
+
+            this._state = ConnectionState.Open;
         }
 
         public override async Task OpenAsync(CancellationToken cancellationToken)
@@ -134,7 +168,8 @@ namespace SolrHTTP.NET.Data
 
         public override void Close()
         {
-           throw new NotSupportedException();
+            this._solrClient = null;
+            this._state = ConnectionState.Closed;
         }
 
         public override async Task CloseAsync()
