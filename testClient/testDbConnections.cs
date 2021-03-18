@@ -69,6 +69,7 @@ namespace solrClientTest {
             Console.WriteLine("done: state");
 
         
+          
             
             return retValue;
         }

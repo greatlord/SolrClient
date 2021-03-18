@@ -253,10 +253,9 @@ namespace SolrHTTP
             if ( string.IsNullOrEmpty( Cfg.solrCore[coreIndexId].coreName ) || string.IsNullOrWhiteSpace( Cfg.solrCore[coreIndexId].coreName ) ) {
                 return null;
             }
-            if (strData == null) {
-                strData = " ";
-            }
-            data = null;
+            
+            url =  Cfg.solrServerUrl + Cfg.solrCore[coreIndexId].coreName + "/"+cmd+strQuery;
+            data = null;            
             if (!string.IsNullOrEmpty(strData)) {
 
                 if ( doUrlEncodeData ) {
@@ -264,18 +263,25 @@ namespace SolrHTTP
                 }
 
                 data = new StringContent(strData, Encoding.UTF8, "application/json");
+
+                var postResult = await client.PostAsync( url,data); 
+
+                var postContext = await postResult.Content.ReadAsStringAsync();    
+
+                status  = postResult;
+
+                return postContext;
             }
 
-            
-            url =  Cfg.solrServerUrl + Cfg.solrCore[coreIndexId].coreName + "/"+cmd+strQuery;
+            // if no post data found we using Get url instead
+            var getResult = await client.GetAsync(url);
 
-            var result = await client.PostAsync( url,data); 
+            var getContext = await getResult.Content.ReadAsStringAsync(); 
 
-            var context = await result.Content.ReadAsStringAsync();
+            status = getResult;
+                
+            return getContext;
             
-            status  = result;
-                        
-            return context;
         }
 
         private async Task <string> doPostApi(  string url, string strData ) {

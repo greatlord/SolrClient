@@ -73,6 +73,10 @@ namespace solrClientTest {
             if ( docs.response.docs.RootElement.GetArrayLength() != 10 ) {
                 return false;
             }
+
+            var xv = solr.Schema(0,null,null);
+            var y = JsonSerializer.Deserialize<SolrJsonDocumentSchema>(xv);
+              
             
             return true;
         }

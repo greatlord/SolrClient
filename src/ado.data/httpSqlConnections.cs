@@ -151,8 +151,14 @@ namespace SolrHTTP.NET.Data
                     throw new NotSupportedException();                
                 }            
 
-                SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result);            
-                if (!SolrDocument.responseHeader.zkConnected) {
+                SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result); 
+                SolrDocument = new SolrJsonDocument();  
+                       
+                if (  
+                      (SolrDocument == null) ||
+                      (SolrDocument.responseHeader == null) ||
+                      (!SolrDocument.responseHeader.zkConnected.HasValue) || 
+                      (!SolrDocument.responseHeader.zkConnected.Value)) {
                     // Solr are not in cloud mode
                     // the sql interface are not vaild then
                     this._SetStateChange( ConnectionState.Closed);
