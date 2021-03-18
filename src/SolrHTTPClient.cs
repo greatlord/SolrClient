@@ -144,6 +144,41 @@ namespace SolrHTTP
 
         }
 
+        public string SchemaFields( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        
+            var solrSchema = this._asyncSchema( coreIndexId, httpQuery, strData);
+
+            solrSchema.Wait();
+
+            return solrSchema.Result; 
+        }
+
+        public async Task <string> SchemaFieldsAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        
+            return await this._asyncSchemaFields( coreIndexId, httpQuery, strData);
+
+        }
+
+        private async Task <string> _asyncSchemaFields( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
+
+            string strQuery;
+
+            strQuery = null;
+            if ( httpQuery != null ) {
+                
+                strQuery = httpQuery.GetUrlQuary();
+                if (string.IsNullOrEmpty(strQuery)) {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json";
+                } else {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&wt=json&" + strQuery;
+                }
+
+            }
+            
+            return await doPost(coreIndexId, "schema/fields", strQuery, strData, false);
+
+        }
+
 
 
 
@@ -163,15 +198,7 @@ namespace SolrHTTP
 
         }
 
-        public string Api(int coreIndexId, string type, string cmd, string data ) {
-
-            var solrApi= this.asyncApi(coreIndexId, type, cmd, data );
-
-            solrApi.Wait();
-
-            return solrApi.Result; 
-
-        }
+       
 
 
         private async Task <string> asyncUpdate(  int coreIndexId, string strData,bool overWrite) {
@@ -200,23 +227,7 @@ namespace SolrHTTP
         }
 
          
-        private async Task <string> asyncApi( int coreIndexId, string type, string cmd, string strData) {                
-
-            string url;
-            
-            if ( Cfg.solrCore.Length == 0) {
-                return null;
-            }
-
-            if ( string.IsNullOrEmpty( Cfg.solrCore[coreIndexId].coreName ) || string.IsNullOrWhiteSpace( Cfg.solrCore[coreIndexId].coreName ) ) {
-                return null;
-            }
-
-            url =  this.solrServerUrlApi + type + "/" + Cfg.solrCore[coreIndexId].coreName + "/" + cmd ;
-
-            return await doPostApi(url, strData);
-
-        }
+       
 
        
 
