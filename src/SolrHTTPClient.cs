@@ -50,7 +50,7 @@ namespace SolrHTTP
             client.DefaultRequestHeaders.Add("Cache-Control", "max-age=0");                        
         }
        
-
+        
         public string Update( int coreIndexId, string strJsonData, bool overWrite ) {                      
             
             var solrUpdate = asyncUpdate( coreIndexId, strJsonData, overWrite);
@@ -60,14 +60,36 @@ namespace SolrHTTP
             return solrUpdate.Result;
         }
 
+        /// <summary>
+        /// Solr http Select interface see https://solr.apache.org/guide/8_8/query-syntax-and-parsing.html
+        /// it is not 100% documemations how to use it.
+        /// </summary>
+        /// <param name="coreIndexId">index number which core/collections/database should be use</param>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <returns>raw solr response json string</returns>
         public string Select( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSelect = asyncSelect( coreIndexId, httpQuery, strData);
+            var solrSelect = this._asyncSelect( coreIndexId, httpQuery, strData);
 
             solrSelect.Wait();
 
             return solrSelect.Result; 
         }
+
+        /// <summary>
+        /// Solr http Select interface see https://solr.apache.org/guide/8_8/query-syntax-and-parsing.html
+        /// it is not 100% documemations how to use it.
+        /// </summary>
+        /// <param name="coreIndexId">index number which core/collections/database should be use</param>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <returns>raw solr response json string</returns>
+        public Task <string> SelectAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        
+            var solrSelect = this._asyncSelect( coreIndexId, httpQuery, strData);
+
+            return solrSelect; 
+        }
+
 
         public string Sql(int coreIndexId, solrBuildHttpParms httpQuery, string strSqlQuery) {
 
@@ -134,7 +156,7 @@ namespace SolrHTTP
 
         }
 
-        private async Task <string> asyncSelect( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
+        private async Task <string> _asyncSelect( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
 
             string strQuery;
 

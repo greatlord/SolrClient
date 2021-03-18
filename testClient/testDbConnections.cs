@@ -4,6 +4,8 @@ using System.Text.Json;
 using SolrHTTP;
 using System;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace solrClientTest {
     public class TestSolrADOConn {
@@ -66,7 +68,7 @@ namespace solrClientTest {
             }
             Console.WriteLine("done: state");
 
-            
+        
             
             return retValue;
         }

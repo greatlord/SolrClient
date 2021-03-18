@@ -29,23 +29,40 @@ namespace SolrHTTP.NET.Data
 {
     public class SolrHTTPConnection : DbConnection, ICloneable
     {
-        private SolrHTTPClient _solrClient;
+        /// <summary>
+        /// The physical connection to the solr.
+        /// </summary>
+        private SolrHTTPClient _solrClient = null;
+
+
+        /// <summary>
+        /// The config been autogenrated when connections string been set.
+        /// </summary>
         private SolrHTTP.Config _solrConfig = null;
-        private string _connectionsString;
 
-
-        
-        
-        private string _serverVersion;
+        /// <summary>
+        /// The original connection string provided by the user, including the password.
+        /// </summary>
+        private string _connectionsString = string.Empty;
+      
+        /// <summary>
+        /// The real internal status of connection, it method will set from change connections string, open, close connections
+        /// </summary>
         private ConnectionState _state = ConnectionState.Closed;
-        private bool _isDisposed;
+  
 
         
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SolrHTTPConnection"/> class.
+        /// </summary>
         public SolrHTTPConnection () {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="NpgsqlConnection"/> with the given connection string.
+        /// </summary>
+        /// <param name="connectionString">The connection used to open the Solr database.</param>
         public SolrHTTPConnection (string conn) {    
             ConnectionString = conn;
             this._SetSolrConfig(conn);
@@ -57,11 +74,24 @@ namespace SolrHTTP.NET.Data
             { return this._solrConfig.solrCore[0].coreName; }
         }
 
+        /// <summary>
+        /// Gets the string identifying the database server (host and port)
+        /// </summary>
+        /// <value>
+        /// The name of the database server (host and port). the default value is the empty string.
+        /// </value>
         public override string DataSource {           
             get { return this._solrConfig.solrServerUrl; }                 
         }
 
 
+        /// <summary>
+        /// Gets or sets the string used to connect to a Solr database. 
+        /// </summary>
+        /// <value>The connection string that includes the server url,
+        /// the database name, and other parameters needed to establish
+        /// the initial connection. The default value is an empty string.
+        /// </value>
         public override string ConnectionString { 
             get { return _connectionsString; }
             set {                 
@@ -69,62 +99,112 @@ namespace SolrHTTP.NET.Data
                 this._SetSolrConfig(value); 
             }
         }
-                
+
+        /// <summary>
+        /// Gets the current state of the connection.
+        /// </summary>
+        /// <value>A bitwise combination of the <see cref="System.Data.ConnectionState"/> values. The default is <b>Closed</b>.</value> 
         public override ConnectionState State {
             get { return _state; }             
         }
 
+        /// <summary>
+        /// Opens a database connection with the property settings specified by the <see cref="ConnectionString"/>.
+        /// The http client will always close the connection direcly after open been call, we emulated it stay open.
+        /// </summary>
         public override void Open()
-        {     
-            
-            if ( this._state == ConnectionState.Open ) {
-                // if it already open do not test same connections again
-                return;  
-            }
-
-            this._SetStateChange( ConnectionState.Connecting);
-
-            if ( this._solrConfig == null ) {
-                this._SetStateChange( ConnectionState.Closed);
-                throw new NotSupportedException();
-            }
-
-            this._solrClient = new SolrHTTPClient( this._solrConfig );
-            SolrJsonDocument SolrDocument = new SolrJsonDocument();
-            solrBuildHttpParms parms = new solrBuildHttpParms();
-            parms.Add("q","*:*");
-            parms.Add("start","0");
-            parms.Add("rows","1");                    
-
-            var result = this._solrClient.Select(0,parms,null);
-
-            if ( this._solrClient.status.StatusCode != HttpStatusCode.OK ) {                
-                this._SetStateChange( ConnectionState.Closed);
-                throw new NotSupportedException();                
-            }            
-
-            SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result);            
-            if (!SolrDocument.responseHeader.zkConnected) {
-                // Solr are not in cloud mode
-                // the sql interface are not vaild then
-                this._SetStateChange( ConnectionState.Closed);
-                throw new NotSupportedException();  
-            }
-            this._SetStateChange( ConnectionState.Open);
-               
+        {                 
+            this.OpenAsync().Wait();                           
         }
 
+        /// <summary>
+        /// Opens a database connection with the property settings specified by the <see cref="ConnectionString"/>.
+        /// The http client will always close the connection direcly after open been call, we emulated it stay open.
+        /// </summary>
+        public override async Task OpenAsync(CancellationToken cancellationToken)
+        {
+            await Task.Run( async () => {
+               
+                if ( this._state == ConnectionState.Open ) {
+                    // if it already open do not test same connections again
+                    return;  
+                }
+
+                this._SetStateChange( ConnectionState.Connecting);
+
+                if ( this._solrConfig == null ) {
+                    this._SetStateChange( ConnectionState.Closed);
+                    throw new NotSupportedException();
+                }
+
+                this._solrClient = new SolrHTTPClient( this._solrConfig );
+                SolrJsonDocument SolrDocument = new SolrJsonDocument();
+                solrBuildHttpParms parms = new solrBuildHttpParms();
+                parms.Add("q","*:*");
+                parms.Add("start","0");
+                parms.Add("rows","1");                    
+
+                var resultasync = this._solrClient.SelectAsync(0,parms,null);
+                resultasync.Wait();
+
+                var result = resultasync.Result;
+
+
+                if ( this._solrClient.status.StatusCode != HttpStatusCode.OK ) {                
+                    this._SetStateChange( ConnectionState.Closed);
+                    throw new NotSupportedException();                
+                }            
+
+                SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result);            
+                if (!SolrDocument.responseHeader.zkConnected) {
+                    // Solr are not in cloud mode
+                    // the sql interface are not vaild then
+                    this._SetStateChange( ConnectionState.Closed);
+                    throw new NotSupportedException();  
+                }
+                this._SetStateChange( ConnectionState.Open);
+
+           });
+        }
+
+
+        /// <summary>
+        /// Releases the connection. 
+        /// The http client will always close the connection direcly, we emulated it close
+        /// </summary>
         public override void Close()
         {
-            this._solrClient = null;
-            this._SetStateChange( ConnectionState.Closed );            
+            this.CloseAsync().Wait();            
         }
 
+        /// <summary>
+        /// Releases the connection. 
+        /// The http client will always close the connection direcly, we emulated it close
+        /// </summary>
+        public override async Task CloseAsync()
+        {
+            await Task.Run(async () => {
+                this._solrClient = null;
+                this._SetStateChange( ConnectionState.Closed );
+            });
+           
+        }
+
+        
+        /// <summary>
+        /// Creates and returns a <see cref="SolrHTTPCommand"/> object associated with the <see cref="SolrHTTPCommand"/>.
+        /// </summary>
+        /// <returns>A <see cref="SolrHTTPCommand"/> object.</returns>
         public new SolrHTTPCommand CreateCommand()
         {
             return (SolrHTTPCommand)base.CreateCommand();
         }
 
+        /// <summary>
+        /// Creates and returns a <see cref="SolrHTTPCommand"/> object associated with the <see cref="SolrHTTPCommand"/>.
+        /// </summary>
+        /// <param name="commandText">Gets or sets the SQL statement, table name or stored procedure to execute at the data source.</param>
+        /// <returns>A <see cref="SolrHTTPCommand"/> object.</returns>
         public SolrHTTPCommand CreateCommand(string commandText)
         {
             var command = CreateCommand();
@@ -133,11 +213,19 @@ namespace SolrHTTP.NET.Data
             return command;
         }
 
+
+        /// <summary>
+        /// Creates and returns a <see cref="System.Data.Common.DbCommand"/>
+        /// object associated with the <see cref="System.Data.Common.DbConnection"/>.
+        /// </summary>
+        /// <returns>A <see cref="System.Data.Common.DbCommand"/> object.</returns>
         protected override DbCommand CreateDbCommand()
         {
             
             return new SolrHTTPCommand(this);
         }
+
+        // private method here
 
         private void _SetStateChange( ConnectionState newState ) {
             
@@ -202,7 +290,7 @@ namespace SolrHTTP.NET.Data
 
         
         // Not suppred at all
-
+       
         public override string ServerVersion
         {
             get
@@ -227,15 +315,9 @@ namespace SolrHTTP.NET.Data
             throw new NotSupportedException();
         }
 
-        public override async Task OpenAsync(CancellationToken cancellationToken)
-        {
-           throw new NotSupportedException();
-        }
+       
 
-        public override async Task CloseAsync()
-        {
-            throw new NotSupportedException();
-        }
+        
 
         protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel)
         {

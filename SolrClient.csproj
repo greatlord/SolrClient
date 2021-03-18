@@ -14,6 +14,7 @@
     <RepositoryUrl>https://github.com/greatlord/SolrClient</RepositoryUrl>
     <RespositoryType>git</RespositoryType>
     <PackageProjectUrl>https://github.com/greatlord/SolrClient</PackageProjectUrl>
+    
   </PropertyGroup>
 
   <ItemGroup>
