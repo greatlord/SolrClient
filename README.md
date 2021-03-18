@@ -44,7 +44,7 @@ if zkConnected == false it false it will throw NotSuppreted
 
 #### method
 * SolrHTTPConnection constructor (done)
-* State get ConnectionState (done)
+* State (done)
 * Open() method (done)
 * Close() method (done)
 * CreateCommand() (done)
@@ -64,7 +64,6 @@ if zkConnected == false it false it will throw NotSuppreted
 * CloseAsync
 * ConnectionTimeout
 * Container
-* CreateCommand
 * Dispose
 * DisposeAsync
 * Disposed
