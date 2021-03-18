@@ -131,9 +131,9 @@ namespace SolrHTTP.NET.Data
                 }
 
                 this._SetStateChange( ConnectionState.Connecting);
-
+                
                 if ( this._solrConfig == null ) {
-                    this._SetStateChange( ConnectionState.Closed);
+                    this._SetStateChange( ConnectionState.Closed);                    
                     throw new NotSupportedException();
                 }
 
@@ -144,12 +144,8 @@ namespace SolrHTTP.NET.Data
                 parms.Add("start","0");
                 parms.Add("rows","1");                    
 
-                var resultasync = this._solrClient.SelectAsync(0,parms,null);
-                resultasync.Wait();
-
-                var result = resultasync.Result;
-
-
+                var result = await this._solrClient.SelectAsync(0,parms,null);
+                
                 if ( this._solrClient.status.StatusCode != HttpStatusCode.OK ) {                
                     this._SetStateChange( ConnectionState.Closed);
                     throw new NotSupportedException();                
@@ -186,6 +182,7 @@ namespace SolrHTTP.NET.Data
             await Task.Run(async () => {
                 this._solrClient = null;
                 this._SetStateChange( ConnectionState.Closed );
+                await Task.Delay(5);
             });
            
         }
@@ -226,6 +223,7 @@ namespace SolrHTTP.NET.Data
         }
 
         // private method here
+       
 
         private void _SetStateChange( ConnectionState newState ) {
             

@@ -83,11 +83,10 @@ namespace SolrHTTP
         /// <param name="coreIndexId">index number which core/collections/database should be use</param>
         /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
         /// <returns>raw solr response json string</returns>
-        public Task <string> SelectAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        public async Task <string> SelectAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSelect = this._asyncSelect( coreIndexId, httpQuery, strData);
-
-            return solrSelect; 
+            return await this._asyncSelect( coreIndexId, httpQuery, strData);
+                    
         }
 
 
