@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SolrHTTP.NET.Data
 {
-    public class SolrHTTPClient : DbCommand
+    public class SolrHTTPCommand : DbCommand
     {
         
         public int FetchSize { get; set; }
@@ -43,6 +43,11 @@ namespace SolrHTTP.NET.Data
             get => false;
             set => throw new NotSupportedException();
         }
+
+        internal SolrHTTPCommand(SolrHTTPConnection connection) {
+            throw new NotSupportedException();
+        }
+
 
         
         public override void Prepare()
