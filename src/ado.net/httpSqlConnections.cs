@@ -193,82 +193,7 @@ namespace SolrHTTP.NET.Data
            
         }
 
-        public override DataTable GetSchema()
-        {
-            DataTable dt;        
-            DataColumn column;
-            
-            string jsonData;
-            SolrJsonDocument docs;
-            SolrJsonDocument docsSchema;
-
-            jsonData = this._solrClient.SchemaFields(0,null,null);
-
-            docs = JsonSerializer.Deserialize<SolrJsonDocument>( jsonData );
-
-            jsonData = this._solrClient.Schema(0,null,null);
-
-            docsSchema = JsonSerializer.Deserialize<SolrJsonDocument>( jsonData );
-
-            if (docs == null) {
-                return null;
-            }
-
-            if (docs.fields == null) {
-                return null;
-            }
-
-            dt = new DataTable();      
-            
-            foreach ( var row in docs.fields ) {       
-
-                Type type =  SolrDataTypeConvert.TranslateSolrField(row.type);
-                if ( type != null ) {
-                    
-                    column = new DataColumn(row.name, type);
-                    column.Caption = row.name;
-                    column.AllowDBNull = true;
-                    column.Unique = false;
-                    
-                    if (string.IsNullOrEmpty(row.defaultValue)) {
-                        
-                        if ( type == typeof(bool) ) {                            
-                            column.DefaultValue = bool.Parse(row.defaultValue);                            
-                        }
-
-                        if ( type == typeof(int) ) {                            
-                            column.DefaultValue = int.Parse(row.defaultValue);
-                        }
-
-                        if ( type == typeof(long) ) {                            
-                            column.DefaultValue = long.Parse(row.defaultValue);
-                        }
-
-                        if ( type == typeof(float) ) {                            
-                            column.DefaultValue = float.Parse(row.defaultValue);
-                        }
-
-                        if ( type == typeof(double) ) {                            
-                            column.DefaultValue = double.Parse(row.defaultValue);
-                        }
-
-                        if ( type == typeof(string) ) {
-                            column.DefaultValue = row.defaultValue;
-                        }
-
-                        // ToDo setup arrays defualt values
-                        
-                    }
-                    
-                    if (docsSchema.schema.uniqueKey == row.name ) {
-                        column.Unique = true;
-                    }
-                                        
-                    dt.Columns.Add(column);
-                }                         
-            }                        
-            return dt;
-        }
+      
 
 
         
@@ -387,6 +312,11 @@ namespace SolrHTTP.NET.Data
                 throw new NotSupportedException();
             }
         }  
+
+        public override DataTable GetSchema()
+        {
+           throw new NotSupportedException();
+        }
        
         public override DataTable GetSchema(string collectionName)
         {

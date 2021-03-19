@@ -12,14 +12,30 @@ namespace SolrHTTP.NET.Data
 {
     public class SolrHTTPCommand : DbCommand
     {
+        private SolrHTTPConnection _connection;
+        private SolrHTTPDataReader _dataReader;
         
-        public int FetchSize { get; set; }
+
+        public int FetchSize  {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
 
         public override string CommandText { get; set; }
 
-        public override int CommandTimeout { get; set; }
+        public override int CommandTimeout  {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
 
-        public override CommandType CommandType { get; set; }
+        public override CommandType CommandType  {
+            get { return CommandType.Text; }
+            set {
+                if ( value != CommandType.Text ) {
+                    throw new NotSupportedException();
+                }                
+            }
+        }
 
         public override UpdateRowSource UpdatedRowSource
         {
@@ -27,10 +43,13 @@ namespace SolrHTTP.NET.Data
             set => throw new NotSupportedException();
         }
 
-        protected override DbConnection DbConnection { get; set; }
-
-        protected override DbParameterCollection DbParameterCollection => Parameters;
-
+        protected override DbConnection DbConnection  {
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
+        }
+        protected override DbParameterCollection DbParameterCollection  {
+            get => throw new NotSupportedException();          
+        }
         
 
         protected override DbTransaction DbTransaction
@@ -46,7 +65,14 @@ namespace SolrHTTP.NET.Data
         }
 
         internal SolrHTTPCommand(SolrHTTPConnection connection) {
-            throw new NotSupportedException();
+
+            this._connection = connection;
+        }
+
+        internal SolrHTTPCommand(string commandText, SolrHTTPConnection connection) {
+
+            this._connection = connection;
+            this.CommandText = commandText;
         }
 
 
@@ -56,9 +82,14 @@ namespace SolrHTTP.NET.Data
             throw new NotSupportedException();
         }
 
+        public bool _isPrepare = false;
+
         public override int ExecuteNonQuery()
         {
-           throw new NotSupportedException();
+            if (_isPrepare) {
+                throw new NotSupportedException();
+            }
+            throw new NotSupportedException();           
         }
 
         public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
