@@ -1,6 +1,7 @@
 
 using System.Text.Json;
 using SolrHTTP;
+using SolrHTTP.Docs;
 
 namespace solrClientTest {
     
@@ -75,7 +76,7 @@ namespace solrClientTest {
             }
 
             var xv = solr.Schema(0,null,null);
-            var y = JsonSerializer.Deserialize<SolrJsonDocumentSchema>(xv);
+            var y = JsonSerializer.Deserialize<SolrJsonDocument>(xv);
               
             
             return true;

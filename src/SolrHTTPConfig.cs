@@ -1,5 +1,6 @@
 
 using System;
+using SolrHTTP.Docs;
 
 namespace SolrHTTP
 {

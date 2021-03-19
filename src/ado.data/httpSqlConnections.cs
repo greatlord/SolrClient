@@ -24,6 +24,8 @@ using System.Security.Cryptography.X509Certificates;
 
 using System.Threading.Channels;
 
+using SolrHTTP.Docs;
+
 
 namespace SolrHTTP.NET.Data
 {
