@@ -82,7 +82,7 @@ if zkConnected == false it false it will throw NotSuppreted.
 * BeginTransactionAsync (Not supported by solr)
 * EnlistTransaction (Not supported by solr)
 
-* Ado.net Does not yet support follow solr datatype for datatable
+#### Ado.net Does not yet support follow solr datatype for datatable
  - _nest_path_
  - ancestor_path
  - binary
