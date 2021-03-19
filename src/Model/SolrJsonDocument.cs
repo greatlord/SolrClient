@@ -13,6 +13,7 @@ namespace SolrHTTP.Docs {
         public SolrJsonDocumentResponseHeader responseHeader {set;get;}               
         public SolrJsonDocumentResponse response {set;get;}
         public SolrJsonDocumentSchemaHeader schema {set;get;}
+        public SolrJsonDocumentSchemaFields fields {set;get;}
         public SolrJsonDocumentError error {set;get;} 
         public SolrJsonDocumentDebug debug {set;get;}
     }

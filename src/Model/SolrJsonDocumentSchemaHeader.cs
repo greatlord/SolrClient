@@ -1,7 +1,5 @@
 using System.Text.Json.Serialization;
 
-// todo only part are implment of Solr Schema
-
 namespace SolrHTTP.Docs.Schema {
 
     public class SolrJsonDocumentSchemaHeader {
@@ -42,6 +40,7 @@ namespace SolrHTTP.Docs.Schema {
         public bool? indexed  {set;get;}
         public bool? multiValued  {set;get;}
         public bool? required {set;get;}
+        public bool? stored {set;get;}
         
     }
     public class SolrJsonDocumentSchemaFieldTypes {
