@@ -230,15 +230,40 @@ namespace SolrHTTP.NET.Data
                     column.AllowDBNull = true;
                     column.Unique = false;
                     
+                    if (string.IsNullOrEmpty(row.defaultValue)) {
+                        
+                        if ( type == typeof(bool) ) {                            
+                            column.DefaultValue = bool.Parse(row.defaultValue);                            
+                        }
+
+                        if ( type == typeof(int) ) {                            
+                            column.DefaultValue = int.Parse(row.defaultValue);
+                        }
+
+                        if ( type == typeof(long) ) {                            
+                            column.DefaultValue = long.Parse(row.defaultValue);
+                        }
+
+                        if ( type == typeof(float) ) {                            
+                            column.DefaultValue = float.Parse(row.defaultValue);
+                        }
+
+                        if ( type == typeof(double) ) {                            
+                            column.DefaultValue = double.Parse(row.defaultValue);
+                        }
+
+                        if ( type == typeof(string) ) {
+                            column.DefaultValue = row.defaultValue;
+                        }
+
+                        // ToDo setup arrays defualt values
+                        
+                    }
+                    
                     if (docsSchema.schema.uniqueKey == row.name ) {
                         column.Unique = true;
                     }
-
-                    // todo
-                    //column.DefaultValue = true;
-
-                    
-
+                                        
                     dt.Columns.Add(column);
                 }                         
             }                        
