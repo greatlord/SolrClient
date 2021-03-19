@@ -70,16 +70,11 @@ namespace solrClientTest {
             Console.WriteLine("done: state");
 
 
-            Console.WriteLine("start: GetSchema");
+           
             
-            try {   
-                conn.Open();
-            } catch(Exception ex) {
-                int xx;
-                xx = 1;
-            }
-            var x = conn.GetSchema();
-            conn.Close();
+           
+
+            
 
             //if ( conn.State != ConnectionState.Closed) {
              //    Console.WriteLine("fail: ConnectionState Closeed");

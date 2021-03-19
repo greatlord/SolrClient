@@ -70,6 +70,7 @@ if zkConnected == false it false it will throw NotSuppreted
 * Close() method (done)
 * CloseAsync method (done)
 * CreateCommand() (done)
+* GetSchema() (done)
 
 #### events
 * StateChange (done)
@@ -78,6 +79,31 @@ if zkConnected == false it false it will throw NotSuppreted
 * BeginDbTransaction (Not supported by solr)
 * BeginTransactionAsync (Not supported by solr)
 * EnlistTransaction (Not supported by solr)
+
+* Ado.net Does not yet support follow solr datatype for datatable
+ - _nest_path_
+ - ancestor_path
+ - binary
+ - delimited_payloads_float
+ - delimited_payloads_int
+ - delimited_payloads_string
+ - descendent_path
+ - ignored
+ - location
+ - location_rpt
+ - lowercase
+ - pdate
+ - pdates
+ - phonetic_en
+ - point
+ - random
+ - rank
+ - text_en_splitting
+ - text_en_splitting_tight
+ - text_gen_sort
+ - text_general_rev
+ multvalued not handle yet 
+ defaultvalue not handle yet 
 
 #### ToDo
 * ChangeDatabase
@@ -88,8 +114,10 @@ if zkConnected == false it false it will throw NotSuppreted
 * Dispose
 * DisposeAsync
 * Disposed
-* GetSchema
-* GetSchemaAsync
+* GetSchema("corename")
+* GetSchema("collectionName", restrictionValues)
+* GetSchemaAsync("corename")
+* GetSchemaAsync("corename", restrictionValues)
 * GetType          
 * ServerVersion
 * Site
