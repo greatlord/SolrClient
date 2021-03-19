@@ -3,8 +3,10 @@ A simple helper library for apache solr writen in .net 5
 
 This solr Client library commucate with apache solr with http/https interface
 It support 
-* collection/Update
-* collection/Select
+* collection/update
+* collection/select
+* collection/schema
+* collection/schema/fields
 * collection/Sql (only if apache solr are in cloud mode, req zookeeper been config with apache solr)
 
 #Do I need have other deepens ?
