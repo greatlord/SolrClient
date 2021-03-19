@@ -25,12 +25,28 @@ namespace SolrHTTP.Docs.Schema {
      public class SolrJsonDocumentSchemaDynamicFields {
         public string name  {set;get;} 
         public string type  {set;get;} 
-        public bool? docValues {set;get;}
-        public bool? indexed  {set;get;}
-        public bool? multiValued  {set;get;}
-        public bool? useDocValuesAsStored {set;get;}
-        public bool? stored {set;get;}
 
+        [JsonPropertyName("default")]
+        public string defaultValue  {set;get;} 
+        
+        public bool? indexed  {set;get;}
+        public bool? docValues {set;get;}        
+        public bool? multiValued  {set;get;}        
+        public bool? omitNorms {set;get;}
+        public bool? omitTermFreqAndPositions {set;get;}        
+        public bool? omitPositions {set;get;}
+        public bool? required {set;get;}
+        public bool? stored {set;get;}                
+        public bool? sortMissingFirst {set;get;}
+        public bool? sortMissingLast {set;get;}                        
+        public bool? termOffsets {set;get;} 
+        public bool? termPayloads {set;get;}
+        public bool? termPositions {set;get;}
+        public bool? termVectors {set;get;}                
+        public bool? uninvertible {set;get;}
+        
+        public bool? useDocValuesAsStored {set;get;}
+        
     }
 
     public class SolrJsonDocumentSchemaFields {
@@ -56,7 +72,7 @@ namespace SolrHTTP.Docs.Schema {
         public bool? termVectors {set;get;}                
         public bool? uninvertible {set;get;}                        
     }
-    
+
     public class SolrJsonDocumentSchemaFieldTypes {
 
         public string name  {set;get;}
