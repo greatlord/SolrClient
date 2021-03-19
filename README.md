@@ -104,8 +104,8 @@ if zkConnected == false it false it will throw NotSuppreted.
  - text_en_splitting_tight
  - text_gen_sort
  - text_general_rev
- multvalued not handle yet 
- defaultvalue not handle yet 
+ * multvalued not handle yet 
+ * defaultvalue not handle yet 
 
 #### ToDo
 * ChangeDatabase
