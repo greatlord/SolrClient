@@ -25,7 +25,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Channels;
 
 using SolrHTTP.Docs;
-
+using SolrHTTP.Helper;
 
 namespace SolrHTTP.NET.Data
 {
@@ -153,9 +153,7 @@ namespace SolrHTTP.NET.Data
                     throw new NotSupportedException();                
                 }            
 
-                SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result); 
-                SolrDocument = new SolrJsonDocument();  
-                       
+                SolrDocument = JsonSerializer.Deserialize<SolrJsonDocument>(result);                                        
                 if (  
                       (SolrDocument == null) ||
                       (SolrDocument.responseHeader == null) ||
@@ -194,6 +192,59 @@ namespace SolrHTTP.NET.Data
             });
            
         }
+
+        public override DataTable GetSchema()
+        {
+            DataTable dt;        
+            DataColumn column;
+            
+            string jsonData;
+            SolrJsonDocument docs;
+            SolrJsonDocument docsSchema;
+
+            jsonData = this._solrClient.SchemaFields(0,null,null);
+
+            docs = JsonSerializer.Deserialize<SolrJsonDocument>( jsonData );
+
+            jsonData = this._solrClient.Schema(0,null,null);
+
+            docsSchema = JsonSerializer.Deserialize<SolrJsonDocument>( jsonData );
+
+            if (docs == null) {
+                return null;
+            }
+
+            if (docs.fields == null) {
+                return null;
+            }
+
+            dt = new DataTable();      
+            
+            foreach ( var row in docs.fields ) {       
+
+                Type type =  SolrDataTypeConvert.TranslateSolrField(row.type);
+                if ( type != null ) {
+                    
+                    column = new DataColumn(row.name, type);
+                    column.Caption = row.name;
+                    column.AllowDBNull = true;
+                    column.Unique = false;
+                    
+                    if (docsSchema.schema.uniqueKey == row.name ) {
+                        column.Unique = true;
+                    }
+
+                    // todo
+                    //column.DefaultValue = true;
+
+                    
+
+                    dt.Columns.Add(column);
+                }                         
+            }                        
+            return dt;
+        }
+
 
         
         /// <summary>
@@ -306,10 +357,7 @@ namespace SolrHTTP.NET.Data
         }  
        
         
-        public override DataTable GetSchema()
-        {
-            throw new NotSupportedException();
-        }
+       
 
         public override DataTable GetSchema(string collectionName)
         {

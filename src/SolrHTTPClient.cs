@@ -146,7 +146,7 @@ namespace SolrHTTP
 
         public string SchemaFields( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSchema = this._asyncSchema( coreIndexId, httpQuery, strData);
+            var solrSchema = this._asyncSchemaFields( coreIndexId, httpQuery, strData);
 
             solrSchema.Wait();
 
