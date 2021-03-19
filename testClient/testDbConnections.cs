@@ -68,9 +68,14 @@ namespace solrClientTest {
                  Console.WriteLine("fail: ConnectionState Closeed");
             }
             Console.WriteLine("done: state");
+            
 
+            SolrHTTPCommand cmd = new SolrHTTPCommand( conn );
 
-           
+            //cmd.CommandText = "SELECT manu, count(*) FROM techproducts GROUP BY manu ORDER BY count(*) desc  LIMIT 10";
+            cmd.CommandText = "SELECT id,  manu as mfr, price as retail FROM techproducts limit 10 offset 10";
+            conn.Open();
+            cmd.ExecuteNonQuery();
             
            
 
@@ -81,7 +86,7 @@ namespace solrClientTest {
             //}
             Console.WriteLine("done: GetSchema");
 
-        
+                
             
             return retValue;
         }

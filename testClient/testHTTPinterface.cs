@@ -75,9 +75,7 @@ namespace solrClientTest {
                 return false;
             }
 
-            var xv = solr.Schema(0,null,null);
-            var y = JsonSerializer.Deserialize<SolrJsonDocument>(xv);
-              
+           
             
             return true;
         }
