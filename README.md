@@ -40,10 +40,10 @@ Contact me so we can agreed on the licen fee and terms for it.
   - calling on solr url http://localhost:8393/solr/corename/select
 
 * Schema()
- - calling on solr url http://localhost:8393/solr/corename/schema
+  - calling on solr url http://localhost:8393/solr/corename/schema
 
 * SchemaAsync()
- - calling on solr url http://localhost:8393/solr/corename/schema
+  - calling on solr url http://localhost:8393/solr/corename/schema
  
 * SchemaFields()
   - calling on solr url http://localhost:8393/solr/corename/schema/fields
