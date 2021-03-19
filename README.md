@@ -46,16 +46,16 @@ Contact me so we can agreed on the licen fee and terms for it.
  - calling on solr url http://localhost:8393/solr/corename/schema
  
 * SchemaFields()
- - calling on solr url http://localhost:8393/solr/corename/schema/fields
+  - calling on solr url http://localhost:8393/solr/corename/schema/fields
 
 * SchemaFieldsAsync()
- - calling on solr url http://localhost:8393/solr/corename/schema/fields
+  - calling on solr url http://localhost:8393/solr/corename/schema/fields
 
 ## Ado.net support ?
 Some basic support exists for zookeeper with solr.
 Solr SQL interface are only activated if you got zookeeper setup
 ado.net for solr http/https sql interface will check with normal post
-if zkConnected == false it false it will throw NotSuppreted 
+if zkConnected == false it false it will throw NotSuppreted. 
 
 ### SolrHTTPConnection
 #### string and vars
