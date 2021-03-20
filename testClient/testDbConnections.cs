@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SolrHTTP.Docs;
 
+
 namespace solrClientTest {
     public class TestSolrADOConn {
 
