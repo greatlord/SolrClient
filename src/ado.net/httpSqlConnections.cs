@@ -34,7 +34,7 @@ namespace SolrHTTP.NET.Data
         /// <summary>
         /// The physical connection to the solr.
         /// </summary>
-        private SolrHTTPClient _solrClient = null;
+        internal SolrHTTPClient _solrClient  { get; private set; } = null;
 
 
         /// <summary>

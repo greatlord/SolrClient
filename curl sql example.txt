@@ -1,0 +1,14 @@
+
+curl --data-urlencode 'stmt=SELECT to, count(*) FROM collection4 GROUP BY to ORDER BY count(*) desc LIMIT 10' http://srv5.greatlord.com:8983/solr/techproducts/sql
+curl --data-urlencode 'stmt=SELECT manu, count(*) FROM techproducts GROUP BY manu ORDER BY count(*) desc  LIMIT 10' http://srv5.greatlord.com:8983/solr/techproducts/sql?aggregationMode=facet
+
+
+curl --data-urlencode 'stmt=SELECT manu as mfr, price as retail FROM techproducts" http://srv5.greatlord.com:8983/solr/techproducts/sql
+curl --data-urlencode "stmt=SELECT id,  manu as mfr, price as retail FROM techproducts limit 10 offset 10" http://srv5.greatlord.com:8983/solr/techproducts/sql
+
+curl --data "stmt=SELECT id,  manu as mfr, price as retail FROM techproducts limit 10 offset 10" http://srv5.greatlord.com:8983/solr/techproducts/sql
+"{\n  \"error\":{\n    \
+       "metadata\":[\n      
+                    \"error-class\",\"org.apache.solr.common.SolrException\",\n      
+                    \"root-error-class\",\"org.apache.solr.common.SolrException\"],\n    \"msg\":\"Unsupported method: PUT for request org.apache.solr.servlet.SolrDispatchFilter$1@404a16d3\",\n    
+                    \"code\":400}}\n"

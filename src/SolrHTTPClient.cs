@@ -13,6 +13,9 @@ namespace SolrHTTP
     {
      
         private readonly HttpClient client = new HttpClient();
+
+        private readonly HttpClient clientSQL = new HttpClient();
+
         public HttpResponseMessage status = new HttpResponseMessage();
         private Random rnd = new Random();
 
@@ -35,15 +38,19 @@ namespace SolrHTTP
             solrServerUrlApi = cfg.solrServerUrl + "/api/";
 
             client.BaseAddress = new Uri( cfg.solrServerUrl );
+            clientSQL.BaseAddress = new Uri( cfg.solrServerUrl );
 
             Cfg = cfg;
 
             if ( cfg.solrUseBaiscAuth ) {
                 if (  !String.IsNullOrEmpty( cfg.solrUserName ) && !String.IsNullOrEmpty( cfg.solrPassword ) ) {
                     client.DefaultRequestHeaders.Add("Authorization", "Basic " + getBase64BasicAuthUserAndPassword( cfg.solrUserName, cfg.solrPassword ) );
+                    clientSQL.DefaultRequestHeaders.Add("Authorization", "Basic " + getBase64BasicAuthUserAndPassword( cfg.solrUserName, cfg.solrPassword ) );
                 }
             }
             
+            clientSQL.DefaultRequestHeaders.Add("Accept", "*/*");
+
             client.DefaultRequestHeaders.Add("Accept", "application/json, text/plain, */*");
             client.DefaultRequestHeaders.Add("DNT", "1");
             client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
@@ -179,24 +186,55 @@ namespace SolrHTTP
 
         }
 
+        public string Sql( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        
+            var solrSchema = this._asyncSql( coreIndexId, httpQuery, strData);
 
+            solrSchema.Wait();
 
+            return solrSchema.Result; 
+        }
 
-
-
-
-
-
-
-        public string Sql(int coreIndexId, solrBuildHttpParms httpQuery, string strSqlQuery) {
-
-            var solrSQL= asyncSQL( coreIndexId, httpQuery.GetUrlQuary(), strSqlQuery);
-
-            solrSQL.Wait();
-
-            return solrSQL.Result; 
+        public async Task <string> SqlAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
+        
+            return await this._asyncSql( coreIndexId, httpQuery, strData);
 
         }
+
+        private async Task <string> _asyncSql( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
+
+            string strQuery;
+
+            strQuery = null;
+            if ( httpQuery != null ) {
+                
+                strQuery = httpQuery.GetUrlQuary();
+                if (string.IsNullOrEmpty(strQuery)) {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() ;
+                } else {
+                    strQuery = "?_=" + rnd.Next(1, 99999999).ToString() + "&" + strQuery;
+                }
+
+            }
+
+            if (!string.IsNullOrEmpty(strData)) {
+               strData = "stmt=" + Uri.EscapeDataString(strData);
+               
+               //strData = "stmt=" + strData;
+               
+            }  
+                        
+            return await doPost(coreIndexId, "sql", strQuery, strData, false, true);
+
+        }
+
+
+
+
+
+
+
+
 
        
 
@@ -226,33 +264,15 @@ namespace SolrHTTP
 
         }
 
-         
-       
 
-       
-
-        private async Task <string> asyncSQL( int coreIndexId, string strQuery, string strSqlQuery) {    
-       
-            if (string.IsNullOrEmpty(strSqlQuery) ) {
-                return null;
-            }
-            
-            strSqlQuery = strSqlQuery.Trim();
-            if (string.IsNullOrEmpty(strSqlQuery) ) {
-                return null;
-            }
-
-            strSqlQuery = "stmt=" + strSqlQuery;
-
-            if (string.IsNullOrEmpty(strQuery) ) {
-                strQuery = "?" + strQuery;
-            }
-            
-            return await doPost(coreIndexId, "sql", strQuery, strSqlQuery, true);
-
+        private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData ) {
+            return await doPost( coreIndexId, cmd, strQuery,strData, false, false );
+        }
+        private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData, bool doUrlEncodeData ) {
+            return await doPost( coreIndexId, cmd, strQuery,strData, doUrlEncodeData, false );
         }
 
-        private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData, bool doUrlEncodeData ) {
+        private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData, bool doUrlEncodeData, bool useSQLClient ) {
                         
             string url;
             StringContent data;
@@ -273,14 +293,15 @@ namespace SolrHTTP
                     strData = Uri.EscapeDataString(strData);
                 }
 
-                data = new StringContent(strData, Encoding.UTF8, "application/json");
-
-                var postResult = await client.PostAsync( url,data); 
-
-                var postContext = await postResult.Content.ReadAsStringAsync();    
-
-                status  = postResult;
-
+                if ( useSQLClient ) {                    
+                    data = new StringContent(strData, Encoding.UTF8, "application/x-www-form-urlencoded");
+                    status = await clientSQL.PostAsync( url,data);
+                } else {
+                    data = new StringContent(strData, Encoding.UTF8, "application/json"); 
+                    status = await client.PostAsync( url,data);                                            
+                }
+                
+                var postContext = await status.Content.ReadAsStringAsync();                
                 return postContext;
             }
 

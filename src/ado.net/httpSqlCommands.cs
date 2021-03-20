@@ -4,8 +4,10 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+
 using SolrHTTP.Docs;
 
 namespace SolrHTTP.NET.Data
@@ -64,17 +66,17 @@ namespace SolrHTTP.NET.Data
             set => throw new NotSupportedException();
         }
 
-        internal SolrHTTPCommand(SolrHTTPConnection connection) {
+        public SolrHTTPCommand(SolrHTTPConnection connection) {
 
             this._connection = connection;
         }
 
-        internal SolrHTTPCommand(string commandText, SolrHTTPConnection connection) {
+        public SolrHTTPCommand(string commandText, SolrHTTPConnection connection) {
 
             this._connection = connection;
             this.CommandText = commandText;
         }
-
+        
 
         
         public override void Prepare()
@@ -86,10 +88,29 @@ namespace SolrHTTP.NET.Data
 
         public override int ExecuteNonQuery()
         {
+            string strSQL;
+            string jsonData;
+            SolrJsonSQLDocument docs;
+
+            strSQL = this.CommandText;
+
             if (_isPrepare) {
                 throw new NotSupportedException();
             }
-            throw new NotSupportedException();           
+            
+            if (this._connection.State != ConnectionState.Open ) {
+                throw new NotSupportedException();
+            }
+
+            jsonData = this._connection._solrClient.Sql(0,null,strSQL);            
+            docs = System.Text.Json.JsonSerializer.Deserialize<SolrJsonSQLDocument>(jsonData);
+            docs.rawData = jsonData;
+            
+            if ( this._connection._solrClient.status.StatusCode != HttpStatusCode.OK ) {
+                throw new NotSupportedException();
+            }
+
+            return docs.resultSet.docs.Length-1;
         }
 
         public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
