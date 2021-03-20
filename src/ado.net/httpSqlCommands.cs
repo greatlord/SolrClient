@@ -102,12 +102,44 @@ namespace SolrHTTP.NET.Data
                 throw new NotSupportedException();
             }
 
-            jsonData = this._connection._solrClient.Sql(0,null,strSQL);            
-            docs = System.Text.Json.JsonSerializer.Deserialize<SolrJsonSQLDocument>(jsonData);
+            jsonData = this._connection._solrClient.Sql(0,null,strSQL); 
+
+            try {
+                docs = System.Text.Json.JsonSerializer.Deserialize<SolrJsonSQLDocument>(jsonData);
+            } catch (Exception ex ) {
+                 throw new ArgumentException( jsonData );                
+            }
+            
             docs.rawData = jsonData;
             
             if ( this._connection._solrClient.status.StatusCode != HttpStatusCode.OK ) {
+                if ( ( docs.resultSet != null ) && 
+                     ( docs.resultSet.docs != null ) &&
+                     ( docs.resultSet.docs.Length > 0 ) ) {
+                        
+                    foreach ( var doc in docs.resultSet.docs ) {
+                        if (!string.IsNullOrEmpty(doc.EXCEPTION)) {
+                            throw new ArgumentException( doc.EXCEPTION );
+                        }
+                    }
+                }
+
+                if ( docs.error != null ) {
+                    if (!string.IsNullOrEmpty( docs.error.msg )) {
+                        throw new ArgumentException( docs.error.msg );
+                    }
+
+                    if (!string.IsNullOrEmpty( docs.error.metadata.errorClass )) {
+                        throw new ArgumentException( docs.error.metadata.errorClass );
+                    }
+
+                     if (!string.IsNullOrEmpty( docs.error.metadata.rootErrorClass )) {
+                        throw new ArgumentException( docs.error.metadata.rootErrorClass );
+                    }
+                }
+                
                 throw new NotSupportedException();
+                //throw new ArgumentException("Index is out of range", nameof(index), ex);
             }
 
             return docs.resultSet.docs.Length-1;
