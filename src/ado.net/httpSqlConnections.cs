@@ -166,7 +166,7 @@ namespace SolrHTTP.NET.Data
                 }
                 this._SetStateChange( ConnectionState.Open);
 
-           });
+           },cancellationToken);
         }
 
 

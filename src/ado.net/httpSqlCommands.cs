@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 using SolrHTTP.Docs;
 
@@ -67,9 +68,11 @@ namespace SolrHTTP.NET.Data
         }
 
         public SolrHTTPCommand(SolrHTTPConnection connection) {
-
+            
             this._connection = connection;
+
         }
+        
 
         public SolrHTTPCommand(string commandText, SolrHTTPConnection connection) {
 
@@ -111,12 +114,13 @@ namespace SolrHTTP.NET.Data
                 if (this._connection.State != ConnectionState.Open ) {
                     throw new NotSupportedException();
                 }
-
-                jsonData = this._connection._solrClient.Sql(0,null,strSQL); 
-
+                
+               
+                jsonData = await this._connection._solrClient.SqlAsync(0,null,strSQL); 
+                
                 try {
-                    docs = System.Text.Json.JsonSerializer.Deserialize<SolrJsonSQLDocument>(jsonData);
-                } catch (Exception ex ) {
+                    docs = JsonSerializer.Deserialize<SolrJsonSQLDocument>(jsonData);
+                } catch (Exception ) {
                     throw new ArgumentException( jsonData );                
                 }
             
@@ -152,7 +156,7 @@ namespace SolrHTTP.NET.Data
                 }
 
                 return docs.resultSet.docs.Length-1;
-            });
+            }, cancellationToken);
 
         }
 
@@ -183,7 +187,7 @@ namespace SolrHTTP.NET.Data
 
         public override void Cancel()
         {
-            throw new NotSupportedException();
+            // we have noting that can be cansle
         }
         
         protected override void Dispose(bool disposing)

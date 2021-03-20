@@ -76,7 +76,7 @@ namespace SolrHTTP
         /// <returns>raw solr response json string</returns>
         public string Select( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSelect = this._asyncSelect( coreIndexId, httpQuery, strData);
+            var solrSelect = this.SelectAsync( coreIndexId, httpQuery, strData);
 
             solrSelect.Wait();
 
@@ -91,13 +91,7 @@ namespace SolrHTTP
         /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
         /// <returns>raw solr response json string</returns>
         public async Task <string> SelectAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
-        
-            return await this._asyncSelect( coreIndexId, httpQuery, strData);
-
-        }
-
-        private async Task <string> _asyncSelect( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
-
+                
             string strQuery;
 
             strQuery = null;
@@ -112,13 +106,13 @@ namespace SolrHTTP
 
             }
             
-            return await doPost(coreIndexId, "select", strQuery, strData, false);
+            return await doPost(coreIndexId, "select", strQuery, strData, false, false);
 
         }
 
         public string Schema( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSchema = this._asyncSchema( coreIndexId, httpQuery, strData);
+            var solrSchema = this.SchemaAsync( coreIndexId, httpQuery, strData);
 
             solrSchema.Wait();
 
@@ -126,13 +120,7 @@ namespace SolrHTTP
         }
 
         public async Task <string> SchemaAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
-        
-            return await this._asyncSchema( coreIndexId, httpQuery, strData);
-
-        }
-
-        private async Task <string> _asyncSchema( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
-
+                 
             string strQuery;
 
             strQuery = null;
@@ -147,13 +135,13 @@ namespace SolrHTTP
 
             }
             
-            return await doPost(coreIndexId, "schema", strQuery, strData, false);
+            return await doPost(coreIndexId, "schema", strQuery, strData, false, false);
 
         }
 
         public string SchemaFields( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSchema = this._asyncSchemaFields( coreIndexId, httpQuery, strData);
+            var solrSchema = this.SchemaFieldsAsync( coreIndexId, httpQuery, strData);
 
             solrSchema.Wait();
 
@@ -161,13 +149,7 @@ namespace SolrHTTP
         }
 
         public async Task <string> SchemaFieldsAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
-        
-            return await this._asyncSchemaFields( coreIndexId, httpQuery, strData);
-
-        }
-
-        private async Task <string> _asyncSchemaFields( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
-
+                  
             string strQuery;
 
             strQuery = null;
@@ -182,13 +164,13 @@ namespace SolrHTTP
 
             }
             
-            return await doPost(coreIndexId, "schema/fields", strQuery, strData, false);
+            return await doPost(coreIndexId, "schema/fields", strQuery, strData, false, false);
 
         }
 
         public string Sql( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSchema = this._asyncSql( coreIndexId, httpQuery, strData);
+            var solrSchema = this.SqlAsync( coreIndexId, httpQuery, strData);
 
             solrSchema.Wait();
 
@@ -196,13 +178,7 @@ namespace SolrHTTP
         }
 
         public async Task <string> SqlAsync( int coreIndexId, solrBuildHttpParms httpQuery, string strData ) {
-        
-            return await this._asyncSql( coreIndexId, httpQuery, strData);
-
-        }
-
-        private async Task <string> _asyncSql( int coreIndexId, solrBuildHttpParms httpQuery, string strData) {                
-
+                  
             string strQuery;
 
             strQuery = null;
@@ -218,14 +194,11 @@ namespace SolrHTTP
             }
 
             if (!string.IsNullOrEmpty(strData)) {
-               strData = "stmt=" + Uri.EscapeDataString(strData);
-               
-               //strData = "stmt=" + strData;
-               
+               strData = "stmt=" + Uri.EscapeDataString(strData);               
             }  
-                        
+            
             return await doPost(coreIndexId, "sql", strQuery, strData, false, true);
-
+            
         }
 
 
@@ -260,17 +233,10 @@ namespace SolrHTTP
 
             parm = "?" + string.Join("&", strParms);
             
-            return await doPost(coreIndexId, "update", parm, strData, false);
+            return await doPost(coreIndexId, "update", parm, strData, false, false);
 
         }
 
-
-        private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData ) {
-            return await doPost( coreIndexId, cmd, strQuery,strData, false, false );
-        }
-        private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData, bool doUrlEncodeData ) {
-            return await doPost( coreIndexId, cmd, strQuery,strData, doUrlEncodeData, false );
-        }
 
         private async Task <string> doPost(  int coreIndexId, string cmd, string strQuery, string strData, bool doUrlEncodeData, bool useSQLClient ) {
                         
@@ -293,15 +259,22 @@ namespace SolrHTTP
                     strData = Uri.EscapeDataString(strData);
                 }
 
-                if ( useSQLClient ) {                    
+                if ( useSQLClient ) {
+            
                     data = new StringContent(strData, Encoding.UTF8, "application/x-www-form-urlencoded");
-                    status = await clientSQL.PostAsync( url,data);
+                    status = await clientSQL.PostAsync( url,data);                                         
+                    //status = await clientSQL.SendAsync()
                 } else {
                     data = new StringContent(strData, Encoding.UTF8, "application/json"); 
-                    status = await client.PostAsync( url,data);                                            
+                    status = await client.PutAsync( url,data);                                            
                 }
                 
-                var postContext = await status.Content.ReadAsStringAsync();                
+                
+
+                var postContext = await status.Content.ReadAsStringAsync();    
+
+                
+
                 return postContext;
             }
 
