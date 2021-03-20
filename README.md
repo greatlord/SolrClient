@@ -64,6 +64,10 @@ ado.net for solr http/https sql interface will check with normal post
 if zkConnected == false it false it will throw NotSuppreted. 
 
 ### SolrHTTPConnection
+Ado.net.data Connections works same as SqlConnection
+if behovir is diffent it contain a bug or not supported then
+Please fill in a bug report then
+
 #### string and vars
 * Database (done)
 * DataSource (done)
@@ -78,7 +82,7 @@ if zkConnected == false it false it will throw NotSuppreted.
 * Close() method (done)
 * CloseAsync method (done)
 * CreateCommand() (done)
-* GetSchema() (done)
+
 
 #### events
 * StateChange (done)
@@ -110,8 +114,6 @@ if zkConnected == false it false it will throw NotSuppreted.
  - text_en_splitting_tight
  - text_gen_sort
  - text_general_rev
- * multvalued not handle yet 
- * defaultvalue not handle yet 
 
 #### ToDo
 * ChangeDatabase
@@ -122,6 +124,7 @@ if zkConnected == false it false it will throw NotSuppreted.
 * Dispose
 * DisposeAsync
 * Disposed
+* GetSchema()
 * GetSchema("corename")
 * GetSchema("collectionName", restrictionValues)
 * GetSchemaAsync("corename")
@@ -130,9 +133,41 @@ if zkConnected == false it false it will throw NotSuppreted.
 * ServerVersion
 * Site
 
+### SolrHTTPCommand
+Ado.net.data Commands works same as SqlCommand
+if behovir is diffent it contain a bug or not supported then
+Please fill in a bug report then
 
+#### string and vars
+* CommandText
+* CommandType
+  - Only support CommandType.Text Apache solr does not have any CommandType.StoredProcedure
 
-## Transform data from solr to object 
+#### method
+* ExecuteNonQuery()
+* ExecuteNonQueryAsync()
+
+#### events
+#### Will not be supported
+* DbTransaction
+
+#### ToDO
+* FetchSize
+* CommandTimeout
+* UpdatedRowSource
+* DbConnection
+* DbParameterCollection
+* DesignTimeVisible
+* Prepare()
+* ExecuteScalar()
+* ExecuteScalarAsync()
+* CreateDbParameter()
+* ExecuteDbDataReader()
+* ExecuteDbDataReaderAsync()
+* Cancel()
+* Dispose()
+
+## Transform data from Apache solr to object 
 The solrHttpClient will return all data as string as it revcived it.
 No helper exists yet to transform it to you own data struct.
 in futuer it will be a helper with that maybe the client will accpect you model and transform it to a object
@@ -154,7 +189,7 @@ function myconnection() {
   
   string docs = solr.Select(0,"q=*%3A*",null);
  }
-as you can see you must self encode the parms correct solr does not under stand + as space (%20) the parm need be encode correct
+as you can see you must self encode the parms correct Apache solr does not under stand + as space (%20) the parm need be encode correct
 to encode the q=*:* cars" correct you need use str = "q="+Uri.EscapeDataString("*:* cars"); now you got corret url encoding 
 
  
