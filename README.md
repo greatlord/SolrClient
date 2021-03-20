@@ -51,6 +51,12 @@ Contact me so we can agreed on the licen fee and terms for it.
 * SchemaFieldsAsync()
   - calling on solr url http://localhost:8393/solr/corename/schema/fields
 
+* Sql()
+  - calling on solr url http://localhost:8393/solr/corename/sql
+
+* SqlAsny()
+  - calling on solr url http://localhost:8393/solr/corename/sql
+
 ## Ado.net support ?
 Some basic support exists for zookeeper with solr.
 Solr SQL interface are only activated if you got zookeeper setup
