@@ -188,8 +188,12 @@ function myconnection() {
   cfg.solrUseBaiscAuth = true;
   
   SolrHTTPClient solr = SolrHTTPClient(cfg);
+  solrBuildHttpParms parms = new solrBuildHttpParms();
+  parms.Add("q","*:*");
+  parms.Add("start","0");
+  parms.Add("rows","10");
   
-  string docs = solr.Select(0,"q=*%3A*",null);
+  string docs = solr.Select(0,parms,null);
  }
 as you can see you must self encode the parms correct Apache solr does not under stand + as space (%20) the parm need be encode correct
 to encode the q=*:* cars" correct you need use str = "q="+Uri.EscapeDataString("*:* cars"); now you got corret url encoding 
