@@ -1,13 +1,12 @@
-using SolrHTTP.NET.Data;
-
-using System.Text.Json;
-using SolrHTTP;
 using System;
 using System.Data;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using SolrHTTP.Docs;
 
+using SolrHTTP;
+using SolrHTTP.Docs;
+//using SolrHTTP.NET.Data;
 
 namespace solrClientTest {
     public class TestSolrADOConn {
@@ -16,8 +15,9 @@ namespace solrClientTest {
 
             bool retValue = true;
             string connectionsting;
+            /*
             SolrHTTPConnection conn;
-
+            
             conn = null;
             connectionsting = "Host=http://srv5.greatlord.com:8983/;Database=techproducts";
             
@@ -82,7 +82,7 @@ namespace solrClientTest {
            
             Console.WriteLine("done: GetSchema");
 
-                
+            */ 
             
             return retValue;
         }

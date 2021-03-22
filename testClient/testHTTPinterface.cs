@@ -15,10 +15,9 @@ namespace solrClientTest {
 
             // Setup config without basic auth;
             cfg.solrServerUrl = "http://srv5.greatlord.com:8983";
-            cfg.solrCore = new SolrHTTP.CoreConfig[1];
-            cfg.solrCore[0] = new CoreConfig();
 
-            cfg.solrCore[0].coreName = "techproducts";
+
+            cfg.coreName = "techproducts";
 
             // create solr http client
             solr = new SolrHTTPClient(cfg);
@@ -29,7 +28,7 @@ namespace solrClientTest {
             parms.Add("rows","1");
 
             // execute the client
-            var x = solr.Select(0,parms,null);
+            var x = solr.Select(parms,null);
 
             if ( solr.status.StatusCode == System.Net.HttpStatusCode.OK ) {
                 return true;
@@ -47,10 +46,9 @@ namespace solrClientTest {
 
             // Setup config without basic auth;
             cfg.solrServerUrl = "http://srv5.greatlord.com:8983";
-            cfg.solrCore = new SolrHTTP.CoreConfig[1];
-            cfg.solrCore[0] = new CoreConfig();
+         
 
-            cfg.solrCore[0].coreName = "techproducts";
+            cfg.coreName = "techproducts";
 
             // create solr http client
             solr = new SolrHTTPClient(cfg);
@@ -61,7 +59,7 @@ namespace solrClientTest {
             parms.Add("rows","10");
 
             // execute the client
-            var x = solr.Select(0,parms,null);
+            var x = solr.Select(parms,null);
 
             if ( solr.status.StatusCode != System.Net.HttpStatusCode.OK ) {
                 return false;

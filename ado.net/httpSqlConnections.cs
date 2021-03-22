@@ -73,7 +73,7 @@ namespace SolrHTTP.NET.Data
         public override string Database
         {
             get
-            { return this._solrConfig.solrCore[0].coreName; }
+            { return this._solrConfig.coreName; }
         }
 
         /// <summary>
@@ -263,8 +263,6 @@ namespace SolrHTTP.NET.Data
             }
 
             this._solrConfig = new Config();
-            this._solrConfig.solrCore = new CoreConfig[1];
-            this._solrConfig.solrCore[0] = new CoreConfig();
 
             foreach(string prop in split) {
                 string[] keyValue = prop.Split("=");
@@ -284,7 +282,7 @@ namespace SolrHTTP.NET.Data
                         break;
 
                     case "database":                        
-                        this._solrConfig.solrCore[0].coreName = keyValue[1];
+                        this._solrConfig.coreName = keyValue[1];
                         break;
 
                     default:
@@ -296,7 +294,7 @@ namespace SolrHTTP.NET.Data
                 throw new NotSupportedException();
             }
 
-            if ( string.IsNullOrEmpty( this._solrConfig.solrCore[0].coreName ) ) {
+            if ( string.IsNullOrEmpty( this._solrConfig.coreName ) ) {
                 throw new NotSupportedException();
             }
 

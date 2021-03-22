@@ -116,7 +116,7 @@ namespace SolrHTTP.NET.Data
                 }
                 
                
-                jsonData = await this._connection._solrClient.SqlAsync(0,null,strSQL); 
+                jsonData = await this._connection._solrClient.SqlAsync(null,strSQL); 
                 
                 try {
                     docs = JsonSerializer.Deserialize<SolrJsonSQLDocument>(jsonData);
