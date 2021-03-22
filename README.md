@@ -58,6 +58,9 @@ Contact me so we can agreed on the licen fee and terms for it.
   - calling on solr url http://localhost:8393/solr/corename/sql
 
 ## Ado.net support ?
+Ado are not included in the release. 
+Left todo is the datareader before it can be release
+
 Some basic support exists for zookeeper with solr.
 Solr SQL interface are only activated if you got zookeeper setup
 ado.net for solr http/https sql interface will check with normal post
@@ -178,8 +181,7 @@ using Solr.SolrConfig;
 
 function myconnection() {
   Solr.SolrConfig.Config cfg = new Solr.SolrConfig.Config cfg();
-  cfg.solrCore = new Solr.SolrConfig.CoreConfig[1];
-  cfg.solrCore[0].coreName = "my core / collection / share name";
+  cfg.solrCore.coreName = "my core / collection / share name";
   cfg.solrServerUrl = "http://localhost:8983";
   cfg.solrUserName = "http basic authorizing name";
   cfg.solrPassword = "http basic authorizing password clear text";
