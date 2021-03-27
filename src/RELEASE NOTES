@@ -1,0 +1,7 @@
+
+SolrHTTPClient
+* Fixed Updated inteface follow new code style and should work now.
+* Remove SQL inteface own HTTP client and use default client instead.
+
+SolrHTTPParmsHelper 
+* solrBuildHttpParms Add can not longer add dublcated it will change the value if a dublcated found to the new value
