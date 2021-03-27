@@ -146,7 +146,7 @@ namespace SolrHTTP.NET.Data
                 parms.Add("start","0");
                 parms.Add("rows","1");                    
 
-                var result = await this._solrClient.SelectAsync(0,parms,null);
+                var result = await this._solrClient.SelectAsync(parms,null);
                 
                 if ( this._solrClient.status.StatusCode != HttpStatusCode.OK ) {                
                     this._SetStateChange( ConnectionState.Closed);
