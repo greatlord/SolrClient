@@ -3,13 +3,17 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <Authors>Magnus Olsen</Authors>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PackageTags>Solr http/https client library</PackageTags>
     <Description>
       This library is a solr client over http/https protocol. it support http login, solr select/update and sql interface.
       see github for more info.
 
-      New in this release 
+      Release 2.0.1 
+      * Smaller change SQL interface change http client to default one 
+      * Smaller change to solrBuildHttpParms Add does not add dublcated keys any longer it will change the value instead
+      
+      Release 2.0 
       * Add Sql interface to HttpClient 
       * alot of smaller bugfix fix and code cleanup
       * The release 2.0 been tested also small test frame work been writen so it does not break.
