@@ -9,7 +9,17 @@ namespace SolrHTTP {
 
         private Dictionary<string,string> parms = new Dictionary<string, string>(); 
         public void Add(string key, string value) {
-            parms.Add( Uri.EscapeDataString(key), Uri.EscapeDataString(value));
+
+            string urlKey;
+            
+            urlKey = Uri.EscapeDataString(key);
+            
+            if ( parms.ContainsKey(urlKey) ) {
+                parms[urlKey] = Uri.EscapeDataString(value);
+            } else {
+                parms.Add(urlKey, Uri.EscapeDataString(value));
+            }
+
         }
 
         public string GetUrlQuary() {

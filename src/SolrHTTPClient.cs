@@ -12,10 +12,7 @@ namespace SolrHTTP
     public class SolrHTTPClient
     {
      
-        private readonly HttpClient client = new HttpClient();
-
-        private readonly HttpClient clientSQL = new HttpClient();
-
+        private readonly HttpClient client = new HttpClient();       
         public HttpResponseMessage status = new HttpResponseMessage();
         private Random rnd = new Random();
 
@@ -34,42 +31,71 @@ namespace SolrHTTP
             }
             cfg.solrServerUrl = cfg.solrServerUrl + "/solr/";
 
-            client.BaseAddress = new Uri( cfg.solrServerUrl );
-            clientSQL.BaseAddress = new Uri( cfg.solrServerUrl );
+            client.BaseAddress = new Uri( cfg.solrServerUrl );            
 
             Cfg = cfg;
 
             if ( cfg.solrUseBaiscAuth ) {
                 if (  !String.IsNullOrEmpty( cfg.solrUserName ) && !String.IsNullOrEmpty( cfg.solrPassword ) ) {
-                    client.DefaultRequestHeaders.Add("Authorization", "Basic " + getBase64BasicAuthUserAndPassword( cfg.solrUserName, cfg.solrPassword ) );
-                    clientSQL.DefaultRequestHeaders.Add("Authorization", "Basic " + getBase64BasicAuthUserAndPassword( cfg.solrUserName, cfg.solrPassword ) );
+                    client.DefaultRequestHeaders.Add("Authorization", "Basic " + getBase64BasicAuthUserAndPassword( cfg.solrUserName, cfg.solrPassword ) );                    
                 }
             }
             
-            clientSQL.DefaultRequestHeaders.Add("Accept", "*/*");
+            //clientSQL.DefaultRequestHeaders.Add("Accept", "*/*");
 
             client.DefaultRequestHeaders.Add("Accept", "*/*");
             client.DefaultRequestHeaders.Add("DNT", "1");
-            client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
+            //client.DefaultRequestHeaders.Add("X-Requested-With", "XMLHttpRequest");
             client.DefaultRequestHeaders.Add("Cache-Control", "max-age=0");                        
         }
        
-        
-        public string Update(string strJsonData, bool overWrite ) {                      
-            
-            var solrUpdate = asyncUpdate(strJsonData, overWrite);
+
+
+        /// <summary>
+        /// Solr Update Select interface see https://solr.apache.org/guide/8_8/query-syntax-and-parsing.html
+        /// it is not 100% documemations how to use it.
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
+        public string Update(solrBuildHttpParms httpQuery, string strData, bool overWrite ) {
+                     
+            var solrUpdate = asyncUpdate(httpQuery, strData, overWrite);
 
             solrUpdate.Wait();
 
-            return solrUpdate.Result;
+            return solrUpdate.Result; 
         }
+
+        /// <summary>
+        /// Solr http Update interface 
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
+        public async Task <string> asyncUpdate(solrBuildHttpParms httpQuery, string strData, bool overWrite ) {
+                
+            return await Task.Run( async () => {
+
+                string strQuery;
+
+                httpQuery.Add("overwrite", overWrite.ToString().ToLower() );
+                
+                strQuery = this._getQuary(httpQuery);
+                
+                return await doPost("select", strQuery, strData, false, false);
+                
+            });
+
+        }
+
 
         /// <summary>
         /// Solr http Select interface see https://solr.apache.org/guide/8_8/query-syntax-and-parsing.html
         /// it is not 100% documemations how to use it.
         /// </summary>
-        /// <param name="coreIndexId">index number which core/collections/database should be use</param>
         /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
         /// <returns>raw solr response json string</returns>
         public string Select(solrBuildHttpParms httpQuery, string strData ) {
         
@@ -84,8 +110,8 @@ namespace SolrHTTP
         /// Solr http Select interface see https://solr.apache.org/guide/8_8/query-syntax-and-parsing.html
         /// it is not 100% documemations how to use it.
         /// </summary>
-        /// <param name="coreIndexId">index number which core/collections/database should be use</param>
         /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
         /// <returns>raw solr response json string</returns>
         public async Task <string> SelectAsync(solrBuildHttpParms httpQuery, string strData ) {
                 
@@ -101,6 +127,12 @@ namespace SolrHTTP
 
         }
 
+        /// <summary>
+        /// Solr http Schema interface
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
         public string Schema(solrBuildHttpParms httpQuery, string strData ) {
         
             var solrSchema = this.SchemaAsync(httpQuery, strData);
@@ -110,6 +142,12 @@ namespace SolrHTTP
             return solrSchema.Result; 
         }
 
+        /// <summary>
+        /// Solr http Schema interface
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
         public async Task <string> SchemaAsync(solrBuildHttpParms httpQuery, string strData ) {
                  
             return await Task.Run( async () => {
@@ -122,15 +160,27 @@ namespace SolrHTTP
             });
         }
 
+        /// <summary>
+        /// Solr http Schema/field interface
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
         public string SchemaFields(solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSchema = this.SchemaFieldsAsync(httpQuery, strData);
+            var solrSchemaField = this.SchemaFieldsAsync(httpQuery, strData);
 
-            solrSchema.Wait();
+            solrSchemaField.Wait();
 
-            return solrSchema.Result; 
+            return solrSchemaField.Result; 
         }
 
+        /// <summary>
+        /// Solr http Schema/field interface
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
         public async Task <string> SchemaFieldsAsync(solrBuildHttpParms httpQuery, string strData ) {
                   
             return await Task.Run( async () => {
@@ -144,15 +194,27 @@ namespace SolrHTTP
 
         }
 
+        /// <summary>
+        /// Solr http SQL interface
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
         public string Sql(solrBuildHttpParms httpQuery, string strData ) {
         
-            var solrSchema = this.SqlAsync(httpQuery, strData);
+            var solrSQL = this.SqlAsync(httpQuery, strData);
 
-            solrSchema.Wait();
+            solrSQL.Wait();
 
-            return solrSchema.Result; 
+            return solrSQL.Result; 
         }
 
+        /// <summary>
+        /// Solr http SQL interface
+        /// </summary>
+        /// <param name="httpQuery">The http Query parms or null <see cref="solrBuildHttpParms"/> </param>
+        /// <param name="strData">post data to solr server</param>
+        /// <returns>raw solr response json string</returns>
         public async Task <string> SqlAsync(solrBuildHttpParms httpQuery, string strData ) {
                   
             return await Task.Run( async () => {
@@ -181,30 +243,7 @@ namespace SolrHTTP
        
 
 
-        private async Task <string> asyncUpdate(  string strData,bool overWrite) {
-
-            string parm;           
-            List <string>strParms;
-
-            strParms = new List<string>();
-
-            strParms.Add( "?_=" + rnd.Next(1, 99999999).ToString() );
-
-            strParms.Add("wt=json");
-            
-            if ( commitWithin > 0 ) {
-                strParms.Add( "commitWithin="+commitWithin.ToString() );                 
-            }
-
-            if (overWrite ) {
-                strParms.Add( "overwrite=true" );                 
-            }
-
-            parm = "?" + string.Join("&", strParms);
-            
-            return await doPost("update", parm, strData, false, false);
-
-        }
+        
 
         private string _getQuary( solrBuildHttpParms httpQuery ) {
 
@@ -252,8 +291,7 @@ namespace SolrHTTP
                     if ( useSQLClient ) {
                 
                         data = new StringContent(strData, Encoding.UTF8, "application/x-www-form-urlencoded");
-                        status = await clientSQL.PostAsync( url,data);                                         
-                        //status = await clientSQL.SendAsync()
+                        
                     } else {
                         data = new StringContent(strData, Encoding.UTF8, "application/json"); 
                         status = await client.PutAsync( url,data);                                            
